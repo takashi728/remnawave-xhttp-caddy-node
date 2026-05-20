@@ -1,0 +1,30 @@
+services:
+  caddy:
+    image: caddy:2
+    container_name: remnawave-caddy
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./selfsteal:/srv/selfsteal:ro
+      - ./caddy_data:/data
+      - ./caddy_config:/config
+
+  remnanode:
+    image: remnawave/node:latest
+    container_name: remnanode
+    hostname: remnanode
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    environment:
+      NODE_PORT: "2222"
+      SECRET_KEY: "${SECRET_KEY}"
+    volumes:
+      - ./certs/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro
+      - ./certs/privkey.key:/etc/nginx/certs/privkey.key:ro
+    ulimits:
+      nofile:
+        soft: 1048576
+        hard: 1048576

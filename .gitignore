@@ -1,0 +1,5 @@
+certs/
+caddy_data/
+caddy_config/
+.env
+*.log
