@@ -6,15 +6,6 @@
 {{DOMAIN}} {
 	encode zstd gzip
 
-	@xhttp path /api/v1/data*
-	reverse_proxy @xhttp 127.0.0.1:10001 {
-		flush_interval -1
-		header_up Host {host}
-		header_up X-Forwarded-Proto {scheme}
-		header_up X-Forwarded-Host {host}
-		header_up X-Real-IP {remote_host}
-	}
-
 	root * /srv/selfsteal
 	file_server
 }

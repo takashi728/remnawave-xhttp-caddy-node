@@ -3,16 +3,19 @@
 This bundle builds a no-fallback node layout:
 
 ```text
-client -> Caddy :443 TLS/ACME -> /api/v1/data -> Xray XHTTP on 127.0.0.1:10001
-                              -> all other paths -> static selfsteal website
+bootstrap/renewal: Caddy :80/:443 -> Let's Encrypt -> exported cert files
+normal service:    client -> Xray :443 TLS -> VLESS XHTTP
 ```
 
-Xray does not bind public `443` in this design. Caddy owns `80/443`, performs ACME, and reverse proxies only the XHTTP path to Xray.
+Xray binds public `443` and terminates TLS. Caddy is used only to issue/renew ACME certificates and export them to the certificate paths mounted into the Remnawave node container. During normal service Caddy is stopped so it does not conflict with Xray on `443`.
+
+Important: active HTTPS selfsteal on the same `443` at the same time requires either Caddy-front TLS or Xray fallback. This profile is the requested no-fallback, TLS-at-Xray mode.
 
 ## Files
 
 - `panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.json` - import/use this as the Remnawave panel config profile.
-- `setup-scripts/install-node-caddy.sh` - installs Docker, Caddy, Remnawave Node, firewall rules, and a cert export cron.
+- `setup-scripts/install-node-caddy.sh` - installs Docker, bootstraps ACME with Caddy, starts Remnawave Node, firewall rules, and a renewal cron.
+- `setup-scripts/renew-caddy-certs-for-xray.sh` - stops Remnawave Node briefly, starts Caddy for certificate renewal/export, then restores Remnawave Node.
 - `docker/docker-compose.yml` - node stack used by the installer.
 - `docker/docker.yaml` - same node stack under the filename you asked for.
 - `caddy/Caddyfile.template` - Caddy ACME + selfsteal reverse proxy template.
@@ -28,10 +31,9 @@ Use the profile JSON and make the public/client settings match:
 - Public host/SNI: your node domain
 - Public port: `443`
 - Path: `/api/v1/data`
-- Xray listen address from profile: `127.0.0.1`
-- Xray listen port from profile: `10001`
+- Xray listen port from profile: `443`
 
-The profile has `security: none` inside Xray because TLS terminates at Caddy. The client still sees and uses TLS on port `443`.
+The profile has `streamSettings.security: "tls"` because TLS terminates in Xray. Caddy only provides the certificate files.
 
 ## Install On A Node
 
@@ -52,11 +54,10 @@ The Remnawave node container still receives:
 /etc/nginx/certs/privkey.key
 ```
 
-Those files are exported from Caddy storage into `/opt/remnanode/certs/` for compatibility with existing panel assumptions. The no-fallback XHTTP profile does not require Xray to read them.
+Those files are exported from Caddy storage into `/opt/remnanode/certs/`, then mounted into the Remnawave node container. Xray reads these exact paths from the profile.
 
 ## Ports
 
-- `80/tcp` - Caddy HTTP-01 / redirect handling
-- `443/tcp` - Caddy HTTPS and XHTTP public endpoint
+- `80/tcp` - Caddy ACME bootstrap/renewal
+- `443/tcp` - Xray VLESS-XHTTP-TLS during normal service; Caddy only during certificate bootstrap/renewal
 - `2222/tcp` - Remnawave node control port
-- `10001/tcp` - local Xray XHTTP inbound; bound to `127.0.0.1` by the profile

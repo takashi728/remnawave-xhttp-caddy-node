@@ -5,8 +5,7 @@
   "inbounds": [
     {
       "tag": "VLESS_XHTTP_TLS_SELFSTEAL",
-      "listen": "127.0.0.1",
-      "port": 10001,
+      "port": 443,
       "protocol": "vless",
       "settings": {
         "clients": [],
@@ -23,7 +22,20 @@
       },
       "streamSettings": {
         "network": "xhttp",
-        "security": "none",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "",
+          "alpn": [
+            "h2",
+            "http/1.1"
+          ],
+          "certificates": [
+            {
+              "certificateFile": "/etc/nginx/certs/fullchain.pem",
+              "keyFile": "/etc/nginx/certs/privkey.key"
+            }
+          ]
+        },
         "xhttpSettings": {
           "path": "/api/v1/data",
           "mode": "auto"

@@ -39,7 +39,8 @@ mkdir -p "$STACK_DIR/caddy" "$STACK_DIR/selfsteal" "$STACK_DIR/certs"
 cp "$PROJECT_DIR/docker/docker-compose.yml" "$STACK_DIR/docker-compose.yml"
 cp "$PROJECT_DIR/selfsteal/index.html" "$STACK_DIR/selfsteal/index.html"
 cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-certs.sh"
-chmod +x "$STACK_DIR/export-caddy-certs.sh"
+cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
+chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 
 sed \
   -e "s/{{EMAIL}}/$EMAIL/g" \
@@ -62,7 +63,7 @@ ufw allow 443/tcp
 ufw allow 2222/tcp
 ufw --force enable
 
-echo "[4/7] Starting Caddy for ACME"
+echo "[4/7] Starting Caddy for ACME bootstrap"
 cd "$STACK_DIR"
 docker compose up -d caddy
 
@@ -80,19 +81,20 @@ if [ ! -s "$STACK_DIR/certs/fullchain.pem" ] || [ ! -s "$STACK_DIR/certs/privkey
 fi
 
 echo "[6/7] Starting Remnawave node"
+docker compose stop caddy >/dev/null
 docker compose up -d remnanode
 
-echo "[7/7] Installing daily cert export cron"
+echo "[7/7] Installing weekly cert renewal cron"
 cat > /etc/cron.d/remnawave-caddy-cert-export <<EOF
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-17 3 * * * root $STACK_DIR/export-caddy-certs.sh $DOMAIN $STACK_DIR >/var/log/remnawave-caddy-cert-export.log 2>&1 && docker restart remnanode >/dev/null 2>&1
+17 3 * * 2 root $STACK_DIR/renew-caddy-certs-for-xray.sh $STACK_DIR >/var/log/remnawave-caddy-cert-export.log 2>&1
 EOF
 
 echo
 echo "Done."
 echo "Domain: $DOMAIN"
-echo "Caddy: 80/443"
+echo "Caddy: ACME bootstrap/renewal only; stopped during normal Xray service"
 echo "Remnawave node: 2222"
 echo "XHTTP path for panel/client: /api/v1/data"
-echo "Xray local inbound expected by panel profile: 127.0.0.1:10001"
+echo "Xray public inbound expected by panel profile: 443 TLS"
