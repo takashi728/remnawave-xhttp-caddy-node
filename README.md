@@ -15,8 +15,10 @@ Important: active HTTPS selfsteal on the same `443` at the same time requires ei
 
 - `panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.json` - VLESS XHTTP TLS profile.
 - `panel-profiles/vless-xtls-vision-tls-selfsteal-no-fallback.json` - VLESS Vision TLS profile.
+- `panel-profiles/vless-xtls-vision-tls-selfsteal-fallback.json` - VLESS Vision TLS profile with fallback to local Caddy.
 - `setup-scripts/install-node-caddy.sh` - installs Docker, bootstraps ACME with Caddy, starts Remnawave Node, firewall rules, and a renewal cron.
 - `setup-scripts/renew-caddy-certs-for-xray.sh` - stops Remnawave Node briefly, starts Caddy for certificate renewal/export, then restores Remnawave Node.
+- `setup-scripts/enable-vision-fallback-caddy.sh` - switches Caddy to local fallback website mode on `127.0.0.1:9443`.
 - `docker/docker-compose.yml` - node stack used by the installer.
 - `docker/docker.yaml` - same node stack under the filename you asked for.
 - `caddy/Caddyfile.template` - Caddy ACME + selfsteal reverse proxy template.
@@ -44,6 +46,14 @@ For the Vision profile, use:
 - Flow: `xtls-rprx-vision`
 - Public host/SNI: your node domain
 - Public port: `443`
+
+For the Vision fallback profile, run this after the installer:
+
+```bash
+sudo /opt/remnanode/enable-vision-fallback-caddy.sh
+```
+
+Then use `panel-profiles/vless-xtls-vision-tls-selfsteal-fallback.json`. Xray still owns public `443`; Caddy only listens locally on `127.0.0.1:9443`, and Xray sends non-VLESS traffic to it.
 
 ## Install On A Node
 

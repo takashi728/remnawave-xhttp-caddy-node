@@ -1,0 +1,13 @@
+{
+	email {{EMAIL}}
+	auto_https off
+}
+
+https://127.0.0.1:9443 {
+	bind 127.0.0.1
+	tls /etc/caddy/certs/fullchain.pem /etc/caddy/certs/privkey.key
+	encode zstd gzip
+
+	root * /srv/selfsteal
+	file_server
+}
