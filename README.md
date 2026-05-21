@@ -24,6 +24,8 @@ Important: active HTTPS selfsteal on the same `443` at the same time requires ei
 - `caddy/Caddyfile.template` - Caddy ACME + selfsteal reverse proxy template.
 - `setup-scripts/export-caddy-certs.sh` - exports Caddy's ACME cert to the old mounted paths.
 
+The Caddy image is pinned to `caddy:2.11.3`.
+
 ## Remnawave Panel Settings
 
 Use the profile JSON and make the public/client settings match:
