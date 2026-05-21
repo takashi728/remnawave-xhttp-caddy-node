@@ -13,7 +13,8 @@ Important: active HTTPS selfsteal on the same `443` at the same time requires ei
 
 ## Files
 
-- `panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.json` - import/use this as the Remnawave panel config profile.
+- `panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.json` - VLESS XHTTP TLS profile.
+- `panel-profiles/vless-xtls-vision-tls-selfsteal-no-fallback.json` - VLESS Vision TLS profile.
 - `setup-scripts/install-node-caddy.sh` - installs Docker, bootstraps ACME with Caddy, starts Remnawave Node, firewall rules, and a renewal cron.
 - `setup-scripts/renew-caddy-certs-for-xray.sh` - stops Remnawave Node briefly, starts Caddy for certificate renewal/export, then restores Remnawave Node.
 - `docker/docker-compose.yml` - node stack used by the installer.
@@ -34,6 +35,15 @@ Use the profile JSON and make the public/client settings match:
 - Xray listen port from profile: `443`
 
 The profile has `streamSettings.security: "tls"` because TLS terminates in Xray. Caddy only provides the certificate files.
+
+For the Vision profile, use:
+
+- Protocol: `vless`
+- Transport: `tcp` / `raw`
+- Security: `tls`
+- Flow: `xtls-rprx-vision`
+- Public host/SNI: your node domain
+- Public port: `443`
 
 ## Install On A Node
 
