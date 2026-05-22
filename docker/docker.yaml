@@ -11,6 +11,15 @@ services:
       - ./caddy_data:/data
       - ./caddy_config:/config
 
+  fallback-web:
+    image: neosmemo/memos:stable
+    container_name: remnawave-fallback-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5230:5230"
+    volumes:
+      - ./fallback-web-data:/var/opt/memos
+
   remnanode:
     image: remnawave/node:latest
     container_name: remnanode

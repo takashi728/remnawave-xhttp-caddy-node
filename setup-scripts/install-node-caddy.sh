@@ -38,6 +38,8 @@ mkdir -p "$STACK_DIR/caddy" "$STACK_DIR/selfsteal" "$STACK_DIR/certs"
 
 cp "$PROJECT_DIR/docker/docker-compose.yml" "$STACK_DIR/docker-compose.yml"
 cp "$PROJECT_DIR/selfsteal/index.html" "$STACK_DIR/selfsteal/index.html"
+cp "$PROJECT_DIR/caddy/Caddyfile.template" "$STACK_DIR/caddy/Caddyfile.acme.template"
+cp "$PROJECT_DIR/caddy/Caddyfile.fallback.template" "$STACK_DIR/caddy/Caddyfile.fallback.template"
 cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-certs.sh"
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
@@ -52,6 +54,7 @@ cat > "$STACK_DIR/.env" <<EOF
 SECRET_KEY=$SECRET_KEY
 DOMAIN=$DOMAIN
 EMAIL=$EMAIL
+VISION_FALLBACK=0
 EOF
 
 touch "$STACK_DIR/certs/fullchain.pem" "$STACK_DIR/certs/privkey.key"
@@ -66,18 +69,24 @@ ufw --force enable
 
 echo "[4/7] Starting Caddy for ACME bootstrap"
 cd "$STACK_DIR"
-docker compose up -d caddy
+docker compose stop caddy >/dev/null 2>&1 || true
+docker compose up -d --force-recreate caddy
 
 echo "[5/7] Waiting for Caddy certificate"
-for _ in $(seq 1 36); do
-  if "$STACK_DIR/export-caddy-certs.sh" "$DOMAIN" "$STACK_DIR"; then
+for attempt in $(seq 1 36); do
+  if CERT_EXPORT_QUIET=1 "$STACK_DIR/export-caddy-certs.sh" "$DOMAIN" "$STACK_DIR"; then
     break
   fi
+  echo "Waiting for certificate for $DOMAIN ($attempt/36). Verify this domain resolves to this VPS if it does not complete."
   sleep 5
 done
 
 if [ ! -s "$STACK_DIR/certs/fullchain.pem" ] || [ ! -s "$STACK_DIR/certs/privkey.key" ]; then
-  echo "Certificate export failed. Check: docker logs remnawave-caddy" >&2
+  echo "Certificate export failed for $DOMAIN." >&2
+  echo "Make sure you entered the intended DNS name and its A/AAAA record points to this VPS." >&2
+  echo "Then rerun this installer; it will recreate Caddy with the new domain." >&2
+  echo "Recent Caddy logs:" >&2
+  docker compose logs --tail=80 caddy >&2 || true
   exit 1
 fi
 

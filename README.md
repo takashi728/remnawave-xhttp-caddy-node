@@ -26,6 +26,8 @@ Important: active HTTPS selfsteal on the same `443` at the same time requires ei
 
 The Caddy image is pinned to `caddy:2.11.3`.
 
+The optional Vision fallback mode serves a real local Memos web app through Caddy instead of a static placeholder page. It is bound to `127.0.0.1:5230`, not exposed publicly except through Xray fallback.
+
 ## Remnawave Panel Settings
 
 Use the profile JSON and make the public/client settings match:
@@ -55,7 +57,7 @@ For the Vision fallback profile, run this after the installer:
 sudo /opt/remnanode/enable-vision-fallback-caddy.sh
 ```
 
-Then use `panel-profiles/vless-xtls-vision-tls-selfsteal-fallback.json`. Xray still owns public `443`; Caddy only listens locally on `127.0.0.1:9443`, and Xray sends non-VLESS traffic to it.
+Then use `panel-profiles/vless-xtls-vision-tls-selfsteal-fallback.json`. Xray still owns public `443`; Caddy only listens locally with HTTP on `127.0.0.1:9443`, and Xray sends non-VLESS traffic to it after terminating public TLS.
 
 ## Install On A Node
 

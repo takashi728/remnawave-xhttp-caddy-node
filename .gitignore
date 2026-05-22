@@ -1,5 +1,6 @@
 certs/
 caddy_data/
 caddy_config/
+fallback-web-data/
 .env
 *.log
