@@ -10,6 +10,7 @@ services:
       - ./certs:/etc/caddy/certs:ro
       - ./caddy_data:/data
       - ./caddy_config:/config
+      - /dev/shm:/dev/shm
 
   fallback-web:
     image: vectorim/element-web:v1.12.18
@@ -34,6 +35,7 @@ services:
     volumes:
       - ./certs/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro
       - ./certs/privkey.key:/etc/nginx/certs/privkey.key:ro
+      - /dev/shm:/dev/shm
     ulimits:
       nofile:
         soft: 1048576

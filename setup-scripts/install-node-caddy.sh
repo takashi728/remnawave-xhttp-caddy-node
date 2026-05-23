@@ -50,11 +50,14 @@ cp "$PROJECT_DIR/selfsteal/index.html" "$STACK_DIR/selfsteal/index.html"
 cp "$PROJECT_DIR/element-web/config.json" "$STACK_DIR/element-web/config.json"
 cp "$PROJECT_DIR/caddy/Caddyfile.template" "$STACK_DIR/caddy/Caddyfile.acme.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.fallback.template" "$STACK_DIR/caddy/Caddyfile.fallback.template"
+cp "$PROJECT_DIR/caddy/Caddyfile.xhttp-socket.template" "$STACK_DIR/caddy/Caddyfile.xhttp-socket.template"
 cp "$PROJECT_DIR/panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json" "$STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json"
+cp "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-selfsteal.template.json" "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.template.json"
 cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-certs.sh"
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
-chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
+cp "$PROJECT_DIR/setup-scripts/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh"
+chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh"
 
 sed \
   -e "s/{{EMAIL}}/$EMAIL/g" \
@@ -67,11 +70,16 @@ DOMAIN=$DOMAIN
 EMAIL=$EMAIL
 XHTTP_PATH=$XHTTP_PATH
 VISION_FALLBACK=0
+XHTTP_SOCKET_MODE=0
 EOF
 
 sed \
   -e "s|{{XHTTP_PATH}}|$XHTTP_PATH|g" \
   "$PROJECT_DIR/panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json" > "$STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json"
+
+sed \
+  -e "s|{{XHTTP_PATH}}|$XHTTP_PATH|g" \
+  "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-selfsteal.template.json" > "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.generated.json"
 
 touch "$STACK_DIR/certs/fullchain.pem" "$STACK_DIR/certs/privkey.key"
 chmod 0600 "$STACK_DIR/certs/privkey.key"
@@ -124,4 +132,5 @@ echo "Caddy: ACME bootstrap/renewal only; stopped during normal Xray service"
 echo "Remnawave node: 2222"
 echo "XHTTP path for panel/client: $XHTTP_PATH"
 echo "Generated XHTTP panel profile: $STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json"
-echo "Xray public inbound expected by panel profile: 443 TLS"
+echo "Generated XHTTP socket panel profile: $STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.generated.json"
+echo "Select the generated profile that matches the host mode you want to use."

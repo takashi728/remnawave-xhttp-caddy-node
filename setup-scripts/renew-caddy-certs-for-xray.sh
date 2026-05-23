@@ -11,6 +11,7 @@ fi
 DOMAIN="$(sed -n 's/^DOMAIN=//p' "$STACK_DIR/.env" | tail -n 1)"
 EMAIL="$(sed -n 's/^EMAIL=//p' "$STACK_DIR/.env" | tail -n 1)"
 VISION_FALLBACK="$(sed -n 's/^VISION_FALLBACK=//p' "$STACK_DIR/.env" | tail -n 1)"
+XHTTP_SOCKET_MODE="$(sed -n 's/^XHTTP_SOCKET_MODE=//p' "$STACK_DIR/.env" | tail -n 1)"
 
 if [ -z "$DOMAIN" ] || [ -z "$EMAIL" ]; then
   echo "DOMAIN or EMAIL is missing from $STACK_DIR/.env" >&2
@@ -37,6 +38,9 @@ for _ in $(seq 1 36); do
   if CERT_EXPORT_QUIET=1 "$STACK_DIR/export-caddy-certs.sh" "$DOMAIN" "$STACK_DIR"; then
     docker compose stop caddy >/dev/null
     docker compose up -d remnanode
+    if [ "$XHTTP_SOCKET_MODE" = "1" ]; then
+      "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR"
+    fi
     if [ "$VISION_FALLBACK" = "1" ]; then
       "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR"
     fi
@@ -49,6 +53,9 @@ done
 docker compose logs --tail=80 caddy >&2 || true
 docker compose stop caddy >/dev/null 2>&1 || true
 docker compose up -d remnanode
+if [ "$XHTTP_SOCKET_MODE" = "1" ]; then
+  "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR" || true
+fi
 if [ "$VISION_FALLBACK" = "1" ]; then
   "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR" || true
 fi

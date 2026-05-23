@@ -1,0 +1,53 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "inbounds": [
+    {
+      "tag": "VLESS_XHTTP_CADDY_SOCKET_SELFSTEAL",
+      "listen": "/dev/shm/remnawave-xhttp.socket,0666",
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "routeOnly": false
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "none",
+        "xhttpSettings": {
+          "mode": "auto",
+          "path": "{{XHTTP_PATH}}",
+          "xPaddingKey": "_dc",
+          "xPaddingHeader": "X-Cache",
+          "xPaddingMethod": "tokenish",
+          "uplinkHTTPMethod": "POST",
+          "xPaddingObfsMode": true,
+          "xPaddingPlacement": "queryInHeader"
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "DIRECT",
+      "protocol": "freedom"
+    },
+    {
+      "tag": "BLOCK",
+      "protocol": "blackhole"
+    }
+  ],
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": []
+  }
+}
