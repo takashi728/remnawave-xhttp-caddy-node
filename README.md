@@ -86,6 +86,12 @@ Check node logs:
 docker logs remnanode --tail=100
 ```
 
+Print the generated path and common node checks:
+
+```bash
+sudo /opt/remnanode/node-status.sh
+```
+
 Renewal is installed as a cron job:
 
 ```bash
