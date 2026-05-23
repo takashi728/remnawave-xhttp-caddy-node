@@ -37,7 +37,7 @@
           ]
         },
         "xhttpSettings": {
-          "path": "/api/REPLACE_WITH_UNIQUE_PATH",
+          "path": "{{XHTTP_PATH}}",
           "mode": "auto"
         }
       }

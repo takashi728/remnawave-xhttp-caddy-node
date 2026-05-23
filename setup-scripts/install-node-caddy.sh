@@ -22,7 +22,16 @@ PROJECT_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
 echo "[1/7] Installing Docker prerequisites"
 apt-get update
-apt-get install -y ca-certificates curl ufw
+apt-get install -y ca-certificates curl openssl ufw
+
+DEFAULT_XHTTP_PATH="/api/$(openssl rand -hex 16)"
+read -r -p "XHTTP path [$DEFAULT_XHTTP_PATH]: " XHTTP_PATH
+XHTTP_PATH="${XHTTP_PATH:-$DEFAULT_XHTTP_PATH}"
+
+if ! printf '%s' "$XHTTP_PATH" | grep -Eq '^/[A-Za-z0-9._~/-]+$'; then
+  echo "XHTTP path must start with / and only contain letters, numbers, dots, dashes, underscores, tildes, and slashes." >&2
+  exit 1
+fi
 
 if ! command -v docker >/dev/null 2>&1; then
   curl -fsSL https://get.docker.com | sh
@@ -34,13 +43,14 @@ if ! docker compose version >/dev/null 2>&1; then
 fi
 
 echo "[2/7] Preparing $STACK_DIR"
-mkdir -p "$STACK_DIR/caddy" "$STACK_DIR/selfsteal" "$STACK_DIR/certs" "$STACK_DIR/element-web"
+mkdir -p "$STACK_DIR/caddy" "$STACK_DIR/selfsteal" "$STACK_DIR/certs" "$STACK_DIR/element-web" "$STACK_DIR/generated-profiles"
 
 cp "$PROJECT_DIR/docker/docker-compose.yml" "$STACK_DIR/docker-compose.yml"
 cp "$PROJECT_DIR/selfsteal/index.html" "$STACK_DIR/selfsteal/index.html"
 cp "$PROJECT_DIR/element-web/config.json" "$STACK_DIR/element-web/config.json"
 cp "$PROJECT_DIR/caddy/Caddyfile.template" "$STACK_DIR/caddy/Caddyfile.acme.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.fallback.template" "$STACK_DIR/caddy/Caddyfile.fallback.template"
+cp "$PROJECT_DIR/panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json" "$STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json"
 cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-certs.sh"
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
@@ -55,8 +65,13 @@ cat > "$STACK_DIR/.env" <<EOF
 SECRET_KEY=$SECRET_KEY
 DOMAIN=$DOMAIN
 EMAIL=$EMAIL
+XHTTP_PATH=$XHTTP_PATH
 VISION_FALLBACK=0
 EOF
+
+sed \
+  -e "s|{{XHTTP_PATH}}|$XHTTP_PATH|g" \
+  "$PROJECT_DIR/panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json" > "$STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json"
 
 touch "$STACK_DIR/certs/fullchain.pem" "$STACK_DIR/certs/privkey.key"
 chmod 0600 "$STACK_DIR/certs/privkey.key"
@@ -107,5 +122,6 @@ echo "Done."
 echo "Domain: $DOMAIN"
 echo "Caddy: ACME bootstrap/renewal only; stopped during normal Xray service"
 echo "Remnawave node: 2222"
-echo "XHTTP path for panel/client: /api/v1/data"
+echo "XHTTP path for panel/client: $XHTTP_PATH"
+echo "Generated XHTTP panel profile: $STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json"
 echo "Xray public inbound expected by panel profile: 443 TLS"
