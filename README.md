@@ -30,10 +30,10 @@ After install, add the node in the Remnawave panel and select the profile you wa
 
 Available profile files:
 
-- `panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.json`
-- `panel-profiles/vless-xhttp-caddy-socket-selfsteal.json`
+- `panel-profiles/vless-xhttp-caddy-socket-selfsteal.json` - recommended XHTTP profile
 - `panel-profiles/vless-xtls-vision-tls-selfsteal-no-fallback.json`
 - `panel-profiles/vless-xtls-vision-tls-selfsteal-fallback.json`
+- `panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.json` - deprecated direct XHTTP profile
 
 Typical host settings:
 
@@ -48,15 +48,13 @@ For the XHTTP profile, set the path to:
 the path printed by the installer
 ```
 
-The installer also writes a rendered XHTTP profile under `/opt/remnanode/generated-profiles/`.
-
-For the XHTTP socket profile, use the rendered socket profile from `/opt/remnanode/generated-profiles/`, then enable web mode:
+For the recommended XHTTP profile, enable web mode after install:
 
 ```bash
 sudo /opt/remnanode/enable-xhttp-socket-caddy.sh
 ```
 
-Use only one XHTTP profile mode for a node at a time.
+Use only one XHTTP profile mode for a node at a time. The direct XHTTP profile is kept only for compatibility.
 
 For the Vision profiles, set the flow to:
 

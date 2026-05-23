@@ -25,7 +25,7 @@
         "security": "none",
         "xhttpSettings": {
           "mode": "auto",
-          "path": "/api/REPLACE_WITH_UNIQUE_PATH",
+          "path": "/_rw_xhttp_internal",
           "xPaddingKey": "_dc",
           "xPaddingHeader": "X-Cache",
           "xPaddingMethod": "tokenish",

@@ -14,7 +14,10 @@
 	}
 
 	@xhttp path {{XHTTP_PATH}}*
-	reverse_proxy @xhttp unix//dev/shm/remnawave-xhttp.socket
+	handle @xhttp {
+		uri replace {{XHTTP_PATH}} /_rw_xhttp_internal
+		reverse_proxy unix//dev/shm/remnawave-xhttp.socket
+	}
 
 	reverse_proxy 127.0.0.1:8088
 }

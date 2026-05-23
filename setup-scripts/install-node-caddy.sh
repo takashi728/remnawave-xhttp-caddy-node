@@ -52,7 +52,7 @@ cp "$PROJECT_DIR/caddy/Caddyfile.template" "$STACK_DIR/caddy/Caddyfile.acme.temp
 cp "$PROJECT_DIR/caddy/Caddyfile.fallback.template" "$STACK_DIR/caddy/Caddyfile.fallback.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.xhttp-socket.template" "$STACK_DIR/caddy/Caddyfile.xhttp-socket.template"
 cp "$PROJECT_DIR/panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json" "$STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json"
-cp "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-selfsteal.template.json" "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.template.json"
+cp "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-selfsteal.json" "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.json"
 cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-certs.sh"
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
@@ -76,10 +76,6 @@ EOF
 sed \
   -e "s|{{XHTTP_PATH}}|$XHTTP_PATH|g" \
   "$PROJECT_DIR/panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.template.json" > "$STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json"
-
-sed \
-  -e "s|{{XHTTP_PATH}}|$XHTTP_PATH|g" \
-  "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-selfsteal.template.json" > "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.generated.json"
 
 touch "$STACK_DIR/certs/fullchain.pem" "$STACK_DIR/certs/privkey.key"
 chmod 0600 "$STACK_DIR/certs/privkey.key"
@@ -131,6 +127,6 @@ echo "Domain: $DOMAIN"
 echo "Caddy: ACME bootstrap/renewal only; stopped during normal Xray service"
 echo "Remnawave node: 2222"
 echo "XHTTP path for panel/client: $XHTTP_PATH"
-echo "Generated XHTTP panel profile: $STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json"
-echo "Generated XHTTP socket panel profile: $STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.generated.json"
-echo "Select the generated profile that matches the host mode you want to use."
+echo "Recommended XHTTP profile: panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
+echo "Deprecated direct XHTTP profile: $STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json"
+echo "Use the printed XHTTP path only in the Remnawave host/client path field."
