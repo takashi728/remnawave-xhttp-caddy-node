@@ -12,13 +12,13 @@ services:
       - ./caddy_config:/config
 
   fallback-web:
-    image: neosmemo/memos:stable
-    container_name: remnawave-fallback-web
+    image: vectorim/element-web:v1.12.18
+    container_name: remnawave-fallback-element
     restart: unless-stopped
     ports:
-      - "127.0.0.1:5230:5230"
+      - "127.0.0.1:8088:80"
     volumes:
-      - ./fallback-web-data:/var/opt/memos
+      - ./element-web/config.json:/app/config.json:ro
 
   remnanode:
     image: remnawave/node:latest

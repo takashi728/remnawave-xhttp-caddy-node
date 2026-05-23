@@ -26,7 +26,7 @@ Important: active HTTPS selfsteal on the same `443` at the same time requires ei
 
 The Caddy image is pinned to `caddy:2.11.3`.
 
-The optional Vision fallback mode serves a real local Memos web app through Caddy instead of a static placeholder page. It is bound to `127.0.0.1:5230`, not exposed publicly except through Xray fallback.
+The optional Vision fallback mode serves Element Web through Caddy instead of a static placeholder page. Element Web is a Matrix web client, not a homeserver: this node does not expose local account registration, a chat database, or Matrix media storage. It is bound to `127.0.0.1:8088`, not exposed publicly except through Xray fallback.
 
 ## Remnawave Panel Settings
 
