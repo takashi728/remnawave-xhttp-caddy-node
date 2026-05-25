@@ -58,7 +58,7 @@ echo
 echo "Containers:"
 if command -v docker >/dev/null 2>&1; then
   docker ps --format '  {{.Names}}\t{{.Status}}\t{{.Ports}}' |
-    grep -E 'remnanode|remnawave-caddy|remnawave-fallback-element|remnawave-tor-proxy' ||
+    grep -E 'remnanode|remnawave-caddy|remnawave-fallback-element' ||
     echo "  no matching containers running"
 else
   echo "  docker command not found"
@@ -67,7 +67,7 @@ fi
 echo
 echo "Listeners:"
 if command -v ss >/dev/null 2>&1; then
-  ss -tulpn | grep -E ':(80|443|2222|8088|9050|9443)\b' || echo "  no matching listeners found"
+  ss -tulpn | grep -E ':(80|443|2222|8088|9443)\b' || echo "  no matching listeners found"
 else
   echo "  ss command not found"
 fi
@@ -80,19 +80,6 @@ else
   echo "  /dev/shm/remnawave-xhttp.socket not present"
 fi
 
-echo
-echo "Tor check:"
-if command -v docker >/dev/null 2>&1; then
-  if docker ps --format '{{.Names}}' | grep -qx 'remnawave-tor-proxy'; then
-    docker logs remnawave-tor-proxy --tail=20 2>&1 | grep -E 'Bootstrapped|Socks listener' | sed 's/^/  /' || echo "  no recent Tor bootstrap lines"
-  else
-    echo "  remnawave-tor-proxy is not running"
-  fi
-else
-  echo "  docker command not found"
-fi
-
-echo
 echo "Firewall:"
 if command -v ufw >/dev/null 2>&1; then
   ufw status verbose | sed 's/^/  /'
@@ -103,7 +90,6 @@ fi
 echo
 echo "Generated files:"
 for file in \
-  "$STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json" \
   "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.json" \
   "$STACK_DIR/caddy/Caddyfile"; do
   if [ -f "$file" ]; then

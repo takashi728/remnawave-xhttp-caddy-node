@@ -1,4 +1,0 @@
-SocksPort 0.0.0.0:9050
-Log notice stdout
-ClientOnly 1
-AvoidDiskWrites 1

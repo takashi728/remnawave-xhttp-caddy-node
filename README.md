@@ -33,7 +33,6 @@ Available profile files:
 - `panel-profiles/vless-xhttp-caddy-socket-selfsteal.json` - recommended XHTTP profile
 - `panel-profiles/vless-xtls-vision-tls-selfsteal-no-fallback.json`
 - `panel-profiles/vless-xtls-vision-tls-selfsteal-fallback.json`
-- `panel-profiles/vless-xhttp-tls-selfsteal-no-fallback.json` - deprecated direct XHTTP profile
 
 Typical host settings:
 
@@ -56,7 +55,7 @@ For the recommended XHTTP profile, enable web mode after install:
 sudo /opt/remnanode/enable-xhttp-socket-caddy.sh
 ```
 
-Use only one XHTTP profile mode for a node at a time. The direct XHTTP profile is kept only for compatibility.
+Use only one XHTTP profile mode for a node at a time.
 
 For the Vision profiles, set the flow to:
 
@@ -73,10 +72,6 @@ sudo /opt/remnanode/enable-vision-fallback-caddy.sh
 ```
 
 The bundled web presentation uses Element Web. It is only started when this optional mode is enabled.
-
-## Tor Outbound
-
-The profiles include a local Tor outbound for `.onion` destinations. The installer starts the local Tor proxy container by default.
 
 ## Maintenance
 

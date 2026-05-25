@@ -34,33 +34,6 @@
     {
       "tag": "DIRECT",
       "protocol": "freedom"
-    },
-    {
-      "tag": "TOR",
-      "protocol": "socks",
-      "settings": {
-        "servers": [
-          {
-            "address": "127.0.0.1",
-            "port": 9050
-          }
-        ]
-      }
-    },
-    {
-      "tag": "BLOCK",
-      "protocol": "blackhole"
     }
-  ],
-  "routing": {
-    "domainStrategy": "AsIs",
-    "rules": [
-      {
-        "domain": [
-          "domain:onion"
-        ],
-        "outboundTag": "TOR"
-      }
-    ]
-  }
+  ]
 }

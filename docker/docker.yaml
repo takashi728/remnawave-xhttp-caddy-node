@@ -21,14 +21,6 @@ services:
     volumes:
       - ./element-web/config.json:/app/config.json:ro
 
-  tor-proxy:
-    build:
-      context: ./tor
-    container_name: remnawave-tor-proxy
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:9050:9050"
-
   remnanode:
     image: remnawave/node:latest
     container_name: remnanode
