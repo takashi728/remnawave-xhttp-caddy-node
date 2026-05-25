@@ -1,0 +1,15 @@
+{
+  "domainStrategy": "AsIs",
+  "rules": [
+    {
+      "domain": [
+        "regexp:\\.onion$"
+      ],
+      "outboundTag": "TOR"
+    },
+    {
+      "network": "tcp,udp",
+      "outboundTag": "WARP"
+    }
+  ]
+}

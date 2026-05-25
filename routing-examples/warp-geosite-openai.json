@@ -1,0 +1,17 @@
+{
+  "domainStrategy": "AsIs",
+  "rules": [
+    {
+      "domain": [
+        "regexp:\\.onion$"
+      ],
+      "outboundTag": "TOR"
+    },
+    {
+      "domain": [
+        "geosite:openai"
+      ],
+      "outboundTag": "WARP"
+    }
+  ]
+}

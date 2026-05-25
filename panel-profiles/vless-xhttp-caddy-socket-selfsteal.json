@@ -42,12 +42,43 @@
       "protocol": "freedom"
     },
     {
+      "tag": "TOR",
+      "protocol": "socks",
+      "settings": {
+        "servers": [
+          {
+            "address": "127.0.0.1",
+            "port": 9050
+          }
+        ]
+      }
+    },
+    {
+      "tag": "WARP",
+      "protocol": "socks",
+      "settings": {
+        "servers": [
+          {
+            "address": "127.0.0.1",
+            "port": 40000
+          }
+        ]
+      }
+    },
+    {
       "tag": "BLOCK",
       "protocol": "blackhole"
     }
   ],
   "routing": {
     "domainStrategy": "AsIs",
-    "rules": []
+    "rules": [
+      {
+        "domain": [
+          "regexp:\\.onion$"
+        ],
+        "outboundTag": "TOR"
+      }
+    ]
   }
 }

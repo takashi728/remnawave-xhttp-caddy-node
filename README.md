@@ -72,6 +72,30 @@ sudo /opt/remnanode/enable-vision-fallback-caddy.sh
 
 The bundled web presentation uses Element Web. It is only started when this optional mode is enabled.
 
+## Optional Outbound Modes
+
+The profiles include a local Tor outbound for `.onion` destinations. The installer starts the local Tor proxy container by default.
+
+WARP is available as an optional local outbound target. Enable the local service with:
+
+```bash
+sudo /opt/remnanode/enable-warp-socks.sh
+```
+
+Then route selected traffic to outbound tag:
+
+```text
+WARP
+```
+
+Routing examples are copied to:
+
+```text
+/opt/remnanode/routing-examples
+```
+
+Review the WARP image in `docker/docker-compose.yml` before enabling it.
+
 ## Maintenance
 
 Check running containers:
