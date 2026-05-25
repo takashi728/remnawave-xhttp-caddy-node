@@ -93,6 +93,18 @@ Print the generated path and common node checks:
 sudo /opt/remnanode/node-status.sh
 ```
 
+Uninstall this stack:
+
+```bash
+sudo /opt/remnanode/uninstall-node.sh
+```
+
+Remove runtime data too:
+
+```bash
+sudo PURGE_DATA=1 /opt/remnanode/uninstall-node.sh
+```
+
 Renewal is installed as a cron job:
 
 ```bash
