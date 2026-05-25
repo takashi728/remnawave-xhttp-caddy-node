@@ -62,18 +62,6 @@
       }
     },
     {
-      "tag": "WARP",
-      "protocol": "socks",
-      "settings": {
-        "servers": [
-          {
-            "address": "127.0.0.1",
-            "port": 40000
-          }
-        ]
-      }
-    },
-    {
       "tag": "BLOCK",
       "protocol": "blackhole"
     }
@@ -83,7 +71,7 @@
     "rules": [
       {
         "domain": [
-          "regexp:\\.onion$"
+          "domain:onion"
         ],
         "outboundTag": "TOR"
       }

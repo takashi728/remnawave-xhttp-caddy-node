@@ -40,4 +40,5 @@ else
 fi
 
 echo "XHTTP socket web mode enabled."
-echo "Use generated profile: $STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.generated.json"
+echo "Use panel profile: panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
+echo "In Remnawave Host settings, set Security Layer to TLS and Path to: $XHTTP_PATH"

@@ -22,7 +22,6 @@ EMAIL="$(get_env EMAIL)"
 XHTTP_PATH="$(get_env XHTTP_PATH)"
 VISION_FALLBACK="$(get_env VISION_FALLBACK)"
 XHTTP_SOCKET_MODE="$(get_env XHTTP_SOCKET_MODE)"
-WARP_SOCKS_MODE="$(get_env WARP_SOCKS_MODE)"
 
 echo "Remnawave node status"
 echo
@@ -31,7 +30,6 @@ echo "Email: ${EMAIL:-missing}"
 echo "XHTTP host path: ${XHTTP_PATH:-missing}"
 echo "Vision fallback mode: ${VISION_FALLBACK:-0}"
 echo "XHTTP socket mode: ${XHTTP_SOCKET_MODE:-0}"
-echo "WARP SOCKS mode: ${WARP_SOCKS_MODE:-0}"
 echo
 
 if [ "${XHTTP_SOCKET_MODE:-0}" = "1" ]; then
@@ -60,7 +58,7 @@ echo
 echo "Containers:"
 if command -v docker >/dev/null 2>&1; then
   docker ps --format '  {{.Names}}\t{{.Status}}\t{{.Ports}}' |
-    grep -E 'remnanode|remnawave-caddy|remnawave-fallback-element|remnawave-tor-proxy|remnawave-warp-socks' ||
+    grep -E 'remnanode|remnawave-caddy|remnawave-fallback-element|remnawave-tor-proxy' ||
     echo "  no matching containers running"
 else
   echo "  docker command not found"
@@ -69,7 +67,7 @@ fi
 echo
 echo "Listeners:"
 if command -v ss >/dev/null 2>&1; then
-  ss -tulpn | grep -E ':(80|443|2222|8088|9050|9443|40000)\b' || echo "  no matching listeners found"
+  ss -tulpn | grep -E ':(80|443|2222|8088|9050|9443)\b' || echo "  no matching listeners found"
 else
   echo "  ss command not found"
 fi
@@ -80,6 +78,18 @@ if [ -S /dev/shm/remnawave-xhttp.socket ]; then
   ls -l /dev/shm/remnawave-xhttp.socket
 else
   echo "  /dev/shm/remnawave-xhttp.socket not present"
+fi
+
+echo
+echo "Tor check:"
+if command -v docker >/dev/null 2>&1; then
+  if docker ps --format '{{.Names}}' | grep -qx 'remnawave-tor-proxy'; then
+    docker logs remnawave-tor-proxy --tail=20 2>&1 | grep -E 'Bootstrapped|Socks listener' | sed 's/^/  /' || echo "  no recent Tor bootstrap lines"
+  else
+    echo "  remnawave-tor-proxy is not running"
+  fi
+else
+  echo "  docker command not found"
 fi
 
 echo

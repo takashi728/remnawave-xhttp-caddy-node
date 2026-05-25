@@ -48,6 +48,8 @@ For the XHTTP profile, set the path to:
 the path printed by the installer
 ```
 
+For the recommended XHTTP socket profile, set the Host security layer to `TLS`. Do not leave it on an inherited value if your panel renders that as `none`.
+
 For the recommended XHTTP profile, enable web mode after install:
 
 ```bash
@@ -72,29 +74,9 @@ sudo /opt/remnanode/enable-vision-fallback-caddy.sh
 
 The bundled web presentation uses Element Web. It is only started when this optional mode is enabled.
 
-## Optional Outbound Modes
+## Tor Outbound
 
 The profiles include a local Tor outbound for `.onion` destinations. The installer starts the local Tor proxy container by default.
-
-WARP is available as an optional local outbound target. Enable the local service with:
-
-```bash
-sudo /opt/remnanode/enable-warp-socks.sh
-```
-
-Then route selected traffic to outbound tag:
-
-```text
-WARP
-```
-
-Routing examples are copied to:
-
-```text
-/opt/remnanode/routing-examples
-```
-
-Review the WARP image in `docker/docker-compose.yml` before enabling it.
 
 ## Maintenance
 

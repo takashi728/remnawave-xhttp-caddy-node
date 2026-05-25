@@ -29,15 +29,6 @@ services:
     ports:
       - "127.0.0.1:9050:9050"
 
-  warp-socks:
-    image: ghcr.io/mon-ius/docker-warp-socks:v5
-    container_name: remnawave-warp-socks
-    restart: unless-stopped
-    profiles:
-      - warp
-    ports:
-      - "127.0.0.1:40000:9091"
-
   remnanode:
     image: remnawave/node:latest
     container_name: remnanode

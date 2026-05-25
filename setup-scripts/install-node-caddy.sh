@@ -43,14 +43,13 @@ if ! docker compose version >/dev/null 2>&1; then
 fi
 
 echo "[2/7] Preparing $STACK_DIR"
-mkdir -p "$STACK_DIR/caddy" "$STACK_DIR/selfsteal" "$STACK_DIR/certs" "$STACK_DIR/element-web" "$STACK_DIR/generated-profiles" "$STACK_DIR/tor" "$STACK_DIR/routing-examples"
+mkdir -p "$STACK_DIR/caddy" "$STACK_DIR/selfsteal" "$STACK_DIR/certs" "$STACK_DIR/element-web" "$STACK_DIR/generated-profiles" "$STACK_DIR/tor"
 
 cp "$PROJECT_DIR/docker/docker-compose.yml" "$STACK_DIR/docker-compose.yml"
 cp "$PROJECT_DIR/selfsteal/index.html" "$STACK_DIR/selfsteal/index.html"
 cp "$PROJECT_DIR/element-web/config.json" "$STACK_DIR/element-web/config.json"
 cp "$PROJECT_DIR/tor/Dockerfile" "$STACK_DIR/tor/Dockerfile"
 cp "$PROJECT_DIR/tor/torrc" "$STACK_DIR/tor/torrc"
-cp "$PROJECT_DIR/routing-examples/"*.json "$STACK_DIR/routing-examples/"
 cp "$PROJECT_DIR/caddy/Caddyfile.template" "$STACK_DIR/caddy/Caddyfile.acme.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.fallback.template" "$STACK_DIR/caddy/Caddyfile.fallback.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.xhttp-socket.template" "$STACK_DIR/caddy/Caddyfile.xhttp-socket.template"
@@ -61,8 +60,7 @@ cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh"
 cp "$PROJECT_DIR/setup-scripts/node-status.sh" "$STACK_DIR/node-status.sh"
-cp "$PROJECT_DIR/setup-scripts/enable-warp-socks.sh" "$STACK_DIR/enable-warp-socks.sh"
-chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/enable-warp-socks.sh"
+chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/node-status.sh"
 
 sed \
   -e "s/{{EMAIL}}/$EMAIL/g" \
@@ -76,7 +74,6 @@ EMAIL=$EMAIL
 XHTTP_PATH=$XHTTP_PATH
 VISION_FALLBACK=0
 XHTTP_SOCKET_MODE=0
-WARP_SOCKS_MODE=0
 EOF
 
 sed \
@@ -136,6 +133,5 @@ echo "Remnawave node: 2222"
 echo "XHTTP path for panel/client: $XHTTP_PATH"
 echo "Recommended XHTTP profile: panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
 echo "Deprecated direct XHTTP profile: $STACK_DIR/generated-profiles/vless-xhttp-tls-selfsteal-no-fallback.generated.json"
-echo "Use the printed XHTTP path only in the Remnawave host/client path field."
+echo "For XHTTP socket mode, set Remnawave Host Security Layer to TLS and Host Path to: $XHTTP_PATH"
 echo "Status check: sudo $STACK_DIR/node-status.sh"
-echo "Optional WARP SOCKS switch: sudo $STACK_DIR/enable-warp-socks.sh"

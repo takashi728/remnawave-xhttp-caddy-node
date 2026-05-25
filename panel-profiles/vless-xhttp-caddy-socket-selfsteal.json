@@ -25,13 +25,7 @@
         "security": "none",
         "xhttpSettings": {
           "mode": "auto",
-          "path": "/_rw_xhttp_internal",
-          "xPaddingKey": "_dc",
-          "xPaddingHeader": "X-Cache",
-          "xPaddingMethod": "tokenish",
-          "uplinkHTTPMethod": "POST",
-          "xPaddingObfsMode": true,
-          "xPaddingPlacement": "queryInHeader"
+          "path": "/_rw_xhttp_internal"
         }
       }
     }
@@ -54,18 +48,6 @@
       }
     },
     {
-      "tag": "WARP",
-      "protocol": "socks",
-      "settings": {
-        "servers": [
-          {
-            "address": "127.0.0.1",
-            "port": 40000
-          }
-        ]
-      }
-    },
-    {
       "tag": "BLOCK",
       "protocol": "blackhole"
     }
@@ -75,7 +57,7 @@
     "rules": [
       {
         "domain": [
-          "regexp:\\.onion$"
+          "domain:onion"
         ],
         "outboundTag": "TOR"
       }
