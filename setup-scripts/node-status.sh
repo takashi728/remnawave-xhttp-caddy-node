@@ -20,6 +20,7 @@ get_env() {
 DOMAIN="$(get_env DOMAIN)"
 EMAIL="$(get_env EMAIL)"
 XHTTP_PATH="$(get_env XHTTP_PATH)"
+EXTRA_PORTS="$(get_env EXTRA_PORTS)"
 VISION_FALLBACK="$(get_env VISION_FALLBACK)"
 XHTTP_SOCKET_MODE="$(get_env XHTTP_SOCKET_MODE)"
 
@@ -28,6 +29,7 @@ echo
 echo "Domain: ${DOMAIN:-missing}"
 echo "Email: ${EMAIL:-missing}"
 echo "XHTTP host path: ${XHTTP_PATH:-missing}"
+echo "Additional inbound TCP ports: ${EXTRA_PORTS:-none}"
 echo "Vision fallback mode: ${VISION_FALLBACK:-0}"
 echo "XHTTP socket mode: ${XHTTP_SOCKET_MODE:-0}"
 echo

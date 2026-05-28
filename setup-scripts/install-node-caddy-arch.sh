@@ -17,8 +17,52 @@ if [ -f /etc/os-release ]; then
   esac
 fi
 
+normalize_extra_ports() {
+  printf '%s' "$1" | tr -d '[:space:]'
+}
+
+validate_extra_ports() {
+  local input="$1"
+  local item start end
+
+  [ -z "$input" ] && return 0
+
+  IFS=',' read -ra items <<< "$input"
+  for item in "${items[@]}"; do
+    if [[ "$item" =~ ^[0-9]+$ ]]; then
+      if [ "$item" -lt 1 ] || [ "$item" -gt 65535 ]; then
+        echo "Invalid port: $item" >&2
+        return 1
+      fi
+    elif [[ "$item" =~ ^([0-9]+)-([0-9]+)$ ]]; then
+      start="${BASH_REMATCH[1]}"
+      end="${BASH_REMATCH[2]}"
+      if [ "$start" -lt 1 ] || [ "$end" -gt 65535 ] || [ "$start" -gt "$end" ]; then
+        echo "Invalid port range: $item" >&2
+        return 1
+      fi
+    else
+      echo "Invalid port entry: $item" >&2
+      return 1
+    fi
+  done
+}
+
+allow_ufw_ports() {
+  local input="$1"
+  local item
+
+  [ -z "$input" ] && return 0
+
+  IFS=',' read -ra items <<< "$input"
+  for item in "${items[@]}"; do
+    ufw allow "$item/tcp"
+  done
+}
+
 read -r -p "Email for Let's Encrypt: " EMAIL
 read -r -p "Node domain, for example node.example.com: " DOMAIN
+read -r -p "Additional inbound TCP ports or ranges, comma-separated [none]: " EXTRA_PORTS
 read -r -s -p "Remnawave SECRET_KEY: " SECRET_KEY
 echo
 
@@ -26,6 +70,9 @@ if [ -z "$EMAIL" ] || [ -z "$DOMAIN" ] || [ -z "$SECRET_KEY" ]; then
   echo "Email, domain, and SECRET_KEY are required." >&2
   exit 1
 fi
+
+EXTRA_PORTS="$(normalize_extra_ports "$EXTRA_PORTS")"
+validate_extra_ports "$EXTRA_PORTS"
 
 STACK_DIR="/opt/remnanode"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -78,6 +125,7 @@ SECRET_KEY=$SECRET_KEY
 DOMAIN=$DOMAIN
 EMAIL=$EMAIL
 XHTTP_PATH=$XHTTP_PATH
+EXTRA_PORTS=$EXTRA_PORTS
 VISION_FALLBACK=0
 XHTTP_SOCKET_MODE=0
 EOF
@@ -91,9 +139,13 @@ if command -v ufw >/dev/null 2>&1; then
   ufw allow 80/tcp
   ufw allow 443/tcp
   ufw allow 2222/tcp
+  allow_ufw_ports "$EXTRA_PORTS"
   ufw --force enable
 else
   echo "UFW is not installed. Make sure ports 22, 80, 443, and 2222/tcp are allowed by your firewall."
+  if [ -n "$EXTRA_PORTS" ]; then
+    echo "Also allow these additional inbound TCP ports: $EXTRA_PORTS"
+  fi
 fi
 
 echo "[4/7] Starting Caddy for ACME bootstrap"
@@ -135,6 +187,9 @@ echo "Done."
 echo "Domain: $DOMAIN"
 echo "Caddy: ACME bootstrap/renewal only; stopped during normal Xray service"
 echo "Remnawave node: 2222"
+if [ -n "$EXTRA_PORTS" ]; then
+  echo "Additional inbound TCP ports allowed/requested: $EXTRA_PORTS"
+fi
 echo "XHTTP path for panel/client: $XHTTP_PATH"
 echo "Recommended XHTTP profile: panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
 echo "For XHTTP socket mode, set Remnawave Host Security Layer to TLS and Host Path to: $XHTTP_PATH"
