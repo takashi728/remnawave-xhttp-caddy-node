@@ -1,10 +1,10 @@
 # Remnawave Node Deployment Bundle
 
-Small deployment bundle for Remnawave nodes on Ubuntu/Debian VPS images.
+Small deployment bundle for Remnawave nodes on Ubuntu/Debian and Arch Linux VPS images.
 
 ## Requirements
 
-- Ubuntu 22.04+ or Debian 11+
+- Ubuntu 22.04+, Debian 11+, or Arch Linux
 - Root or sudo access
 - A domain record already pointing to the VPS
 - Remnawave node secret key
@@ -15,6 +15,12 @@ Small deployment bundle for Remnawave nodes on Ubuntu/Debian VPS images.
 git clone https://github.com/takashi728/remnawave-xhttp-caddy-node.git
 cd remnawave-xhttp-caddy-node
 sudo bash setup-scripts/install-node-caddy.sh
+```
+
+On Arch Linux:
+
+```bash
+sudo bash setup-scripts/install-node-caddy-arch.sh
 ```
 
 The installer asks for:
