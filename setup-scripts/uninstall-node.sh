@@ -49,6 +49,7 @@ if [ -d "$STACK_DIR" ]; then
   rm -f "$STACK_DIR/renew-caddy-certs-for-xray.sh"
   rm -f "$STACK_DIR/enable-vision-fallback-caddy.sh"
   rm -f "$STACK_DIR/enable-xhttp-socket-caddy.sh"
+  rm -f "$STACK_DIR/enable-network-tuning.sh"
   rm -f "$STACK_DIR/enable-warp-socks.sh"
   rm -f "$STACK_DIR/node-status.sh"
   rm -rf "$STACK_DIR/tor"

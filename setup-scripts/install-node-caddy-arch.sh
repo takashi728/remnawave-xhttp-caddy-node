@@ -111,9 +111,10 @@ cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-c
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh"
+cp "$PROJECT_DIR/setup-scripts/enable-network-tuning.sh" "$STACK_DIR/enable-network-tuning.sh"
 cp "$PROJECT_DIR/setup-scripts/node-status.sh" "$STACK_DIR/node-status.sh"
 cp "$PROJECT_DIR/setup-scripts/uninstall-node.sh" "$STACK_DIR/uninstall-node.sh"
-chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
+chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-network-tuning.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
 
 sed \
   -e "s/{{EMAIL}}/$EMAIL/g" \
@@ -194,4 +195,5 @@ echo "XHTTP path for panel/client: $XHTTP_PATH"
 echo "Recommended XHTTP profile: panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
 echo "For XHTTP socket mode, set Remnawave Host Security Layer to TLS and Host Path to: $XHTTP_PATH"
 echo "Status check: sudo $STACK_DIR/node-status.sh"
+echo "Optional network tuning: sudo $STACK_DIR/enable-network-tuning.sh"
 echo "Uninstall: sudo $STACK_DIR/uninstall-node.sh"
