@@ -56,6 +56,8 @@ the path printed by the installer
 
 For the recommended XHTTP socket profile, set the Host security layer to `TLS`. Do not leave it on an inherited value if your panel renders that as `none`.
 
+For XHTTP, prefer `h2` in the Host ALPN setting when the panel exposes it.
+
 For the recommended XHTTP profile, enable web mode after install:
 
 ```bash
