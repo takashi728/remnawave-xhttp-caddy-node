@@ -1,0 +1,54 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "inbounds": [
+    {
+      "tag": "VLESS_XHTTP_CADDY_SOCKET_OBFS_TEST",
+      "listen": "/dev/shm/remnawave-xhttp.socket,0666",
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "routeOnly": false
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "none",
+        "xhttpSettings": {
+          "mode": "packet-up",
+          "path": "/_rw_xhttp_internal",
+          "xPaddingObfsMode": true,
+          "xPaddingBytes": "16-96",
+          "xPaddingMethod": "tokenish",
+          "xPaddingPlacement": "queryInHeader",
+          "xPaddingHeader": "Referer",
+          "xPaddingKey": "v",
+          "uplinkHTTPMethod": "POST",
+          "uplinkDataPlacement": "body",
+          "scMaxEachPostBytes": 2000000,
+          "scMinPostsIntervalMs": 10,
+          "xmux": {
+            "maxConcurrency": "1-1",
+            "hMaxRequestTimes": "600-900",
+            "hMaxReusableSecs": "1800-3000"
+          }
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "DIRECT",
+      "protocol": "freedom"
+    }
+  ]
+}
