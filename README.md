@@ -100,6 +100,12 @@ Print the generated path and common node checks:
 sudo /opt/remnanode/node-status.sh
 ```
 
+Optional network tuning:
+
+```bash
+sudo /opt/remnanode/enable-network-tuning.sh
+```
+
 Uninstall this stack:
 
 ```bash
