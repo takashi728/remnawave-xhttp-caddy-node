@@ -1,0 +1,120 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "dns": {
+    "servers": [
+      "1.1.1.1",
+      "8.8.8.8"
+    ]
+  },
+  "inbounds": [
+    {
+      "tag": "BRIDGE_A_TRANSIT_XHTTP_OBFS",
+      "listen": "/dev/shm/remnawave-xhttp.socket,0666",
+      "protocol": "vless",
+      "settings": {
+        "clients": [],
+        "decryption": "none"
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "routeOnly": false
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "none",
+        "xhttpSettings": {
+          "mode": "packet-up",
+          "path": "/_rw_xhttp_internal",
+          "xPaddingObfsMode": true,
+          "xPaddingBytes": "16-96",
+          "xPaddingMethod": "tokenish",
+          "xPaddingPlacement": "queryInHeader",
+          "xPaddingHeader": "Referer",
+          "xPaddingKey": "v",
+          "uplinkHTTPMethod": "POST",
+          "uplinkDataPlacement": "body",
+          "scMaxEachPostBytes": 2000000,
+          "scMinPostsIntervalMs": 10,
+          "xmux": {
+            "maxConcurrency": "1-1",
+            "hMaxRequestTimes": "600-900",
+            "hMaxReusableSecs": "1800-3000"
+          }
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "TO_B_DEST_VISION",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "B_DEST_DOMAIN_REPLACE_ME",
+            "port": 443,
+            "users": [
+              {
+                "id": "5dae9c7b-f16d-49dd-a207-1f8e6bdc2d36",
+                "encryption": "none",
+                "flow": "xtls-rprx-vision"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "B_DEST_DOMAIN_REPLACE_ME",
+          "alpn": [
+            "http/1.1"
+          ]
+        }
+      }
+    },
+    {
+      "tag": "BLOCK",
+      "protocol": "blackhole"
+    }
+  ],
+  "routing": {
+    "domainStrategy": "IPIfNonMatch",
+    "rules": [
+      {
+        "type": "field",
+        "domain": [
+          "geosite:category-ads-all",
+          "geosite:cn",
+          "geosite:geolocation-cn",
+          "regexp:.*\\.ru$",
+          "regexp:.*\\.su$",
+          "regexp:.*\\.xn--p1ai$"
+        ],
+        "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "ip": [
+          "geoip:private",
+          "geoip:cn",
+          "geoip:ru"
+        ],
+        "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "network": "tcp,udp",
+        "outboundTag": "TO_B_DEST_VISION"
+      }
+    ]
+  }
+}
