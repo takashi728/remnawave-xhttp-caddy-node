@@ -87,8 +87,23 @@
     }
   ],
   "routing": {
-    "domainStrategy": "IPIfNonMatch",
+    "domainStrategy": "AsIs",
     "rules": [
+      {
+        "type": "field",
+        "domain": [
+          "geosite:google",
+          "geosite:youtube",
+          "domain:gmail.com",
+          "domain:gemini.google.com",
+          "domain:gemini.google",
+          "domain:googleapis.cn",
+          "domain:googleapis-cn.com",
+          "domain:gstatic.cn",
+          "domain:gstatic-cn.com"
+        ],
+        "outboundTag": "TO_B_DEST_VISION"
+      },
       {
         "type": "field",
         "domain": [
