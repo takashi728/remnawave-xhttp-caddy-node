@@ -62,7 +62,7 @@
             "port": 443,
             "users": [
               {
-                "id": "5dae9c7b-f16d-49dd-a207-1f8e6bdc2d36",
+                "id": "SERVICE_USER_VLESS_UUID_REPLACE_ME",
                 "encryption": "none",
                 "flow": "xtls-rprx-vision"
               }

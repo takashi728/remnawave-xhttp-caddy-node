@@ -8,12 +8,7 @@
       "port": 443,
       "protocol": "vless",
       "settings": {
-        "clients": [
-          {
-            "id": "5dae9c7b-f16d-49dd-a207-1f8e6bdc2d36",
-            "flow": "xtls-rprx-vision"
-          }
-        ],
+        "clients": [],
         "decryption": "none"
       },
       "sniffing": {
