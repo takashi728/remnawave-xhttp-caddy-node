@@ -11,6 +11,16 @@ Small deployment bundle for Remnawave nodes on Ubuntu/Debian, Arch Linux, Rocky 
 
 ## Install
 
+Direct bootstrap from this branch:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/takashi728/remnawave-xhttp-caddy-node/new-install-script/setup-scripts/install.sh | sudo bash
+```
+
+The bootstrap installer downloads the repository archive, detects the distro, and runs the matching installer.
+
+Manual clone install:
+
 ```bash
 git clone https://github.com/takashi728/remnawave-xhttp-caddy-node.git
 cd remnawave-xhttp-caddy-node
