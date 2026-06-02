@@ -68,6 +68,30 @@ echo "Remnawave node bootstrap"
 echo "Distro: ${PRETTY_NAME:-${ID:-unknown}}"
 echo "Source: $REPO_OWNER/$REPO_NAME branch $BRANCH"
 
+update_system_no_reboot() {
+  echo "Updating system packages. This installer will not reboot automatically."
+  case "${ID:-}" in
+    ubuntu|debian)
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get upgrade -y \
+        -o Dpkg::Options::="--force-confdef" \
+        -o Dpkg::Options::="--force-confold"
+      ;;
+    arch|artix|endeavouros|manjaro)
+      pacman -Syu --noconfirm
+      ;;
+    rocky|almalinux)
+      dnf upgrade -y
+      ;;
+    *)
+      echo "Unsupported distro for bootstrap installer: ${ID:-unknown}" >&2
+      exit 1
+      ;;
+  esac
+}
+
+update_system_no_reboot
 install_fetch_deps
 
 WORK_DIR="$(mktemp -d)"
