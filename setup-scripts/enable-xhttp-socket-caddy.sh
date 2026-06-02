@@ -31,12 +31,19 @@ sed \
 
 cd "$STACK_DIR"
 docker compose up -d fallback-web
+docker compose stop angie >/dev/null 2>&1 || true
 docker compose up -d --force-recreate caddy
 
 if grep -q '^XHTTP_SOCKET_MODE=' "$STACK_DIR/.env"; then
   sed -i 's/^XHTTP_SOCKET_MODE=.*/XHTTP_SOCKET_MODE=1/' "$STACK_DIR/.env"
 else
   printf '\nXHTTP_SOCKET_MODE=1\n' >> "$STACK_DIR/.env"
+fi
+
+if grep -q '^WEB_FRONTEND=' "$STACK_DIR/.env"; then
+  sed -i 's/^WEB_FRONTEND=.*/WEB_FRONTEND=caddy/' "$STACK_DIR/.env"
+else
+  printf '\nWEB_FRONTEND=caddy\n' >> "$STACK_DIR/.env"
 fi
 
 echo "XHTTP socket web mode enabled."

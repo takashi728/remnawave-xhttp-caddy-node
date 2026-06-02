@@ -1,0 +1,71 @@
+worker_processes auto;
+worker_rlimit_nofile 1048576;
+
+events {
+    worker_connections 65536;
+}
+
+http {
+    include /etc/angie/mime.types;
+    default_type application/octet-stream;
+
+    access_log off;
+    error_log /var/log/angie/error.log notice;
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    keepalive_requests 10000;
+
+    server_tokens off;
+
+    server {
+        listen 80;
+        server_name {{DOMAIN}};
+
+        location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+
+    server {
+        listen 443 ssl http2;
+        listen 443 quic reuseport;
+        server_name {{DOMAIN}};
+
+        ssl_certificate /etc/angie/certs/fullchain.pem;
+        ssl_certificate_key /etc/angie/certs/privkey.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_session_cache shared:SSL:10m;
+        ssl_session_timeout 1d;
+
+        add_header Alt-Svc 'h3=":443"; ma=86400' always;
+        add_header Content-Security-Policy "frame-ancestors 'none'" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+
+        location {{XHTTP_PATH}} {
+            rewrite ^{{XHTTP_PATH}}(.*)$ /_rw_xhttp_internal$1 break;
+
+            proxy_http_version 1.1;
+            proxy_buffering off;
+            proxy_request_buffering off;
+            proxy_read_timeout 1h;
+            proxy_send_timeout 1h;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_pass http://unix:/dev/shm/remnawave-xhttp.socket:;
+        }
+
+        location / {
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_pass http://127.0.0.1:8088;
+        }
+    }
+}

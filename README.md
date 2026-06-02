@@ -66,6 +66,14 @@ sudo /opt/remnanode/enable-xhttp-socket-caddy.sh
 
 Use only one XHTTP profile mode for a node at a time.
 
+Experimental Angie frontend is available on the `experiment/angie-proxy` branch:
+
+```bash
+sudo /opt/remnanode/enable-xhttp-socket-angie.sh
+```
+
+This reuses the certificates exported by the normal Caddy bootstrap and starts Angie on ports `80`/`443`. It is for benchmarking only. Angie currently proxies the Unix socket with HTTP/1.1 upstream in this branch, while the stable Caddy frontend uses h2c upstream to Xray.
+
 For the Vision profiles, set the flow to:
 
 ```text
@@ -134,4 +142,4 @@ The runtime files are placed under:
 
 ## Notes
 
-The deployment uses pinned Caddy and Element Web images in the compose files. Review `docker/docker-compose.yml` before deploying if you need to change image tags, ports, or service names.
+The deployment uses pinned Caddy, optional Angie, and Element Web images in the compose files. Review `docker/docker-compose.yml` before deploying if you need to change image tags, ports, or service names.

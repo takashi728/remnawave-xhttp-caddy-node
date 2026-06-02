@@ -23,6 +23,7 @@ XHTTP_PATH="$(get_env XHTTP_PATH)"
 EXTRA_PORTS="$(get_env EXTRA_PORTS)"
 VISION_FALLBACK="$(get_env VISION_FALLBACK)"
 XHTTP_SOCKET_MODE="$(get_env XHTTP_SOCKET_MODE)"
+WEB_FRONTEND="$(get_env WEB_FRONTEND)"
 
 echo "Remnawave node status"
 echo
@@ -32,6 +33,7 @@ echo "XHTTP host path: ${XHTTP_PATH:-missing}"
 echo "Additional inbound TCP ports: ${EXTRA_PORTS:-none}"
 echo "Vision fallback mode: ${VISION_FALLBACK:-0}"
 echo "XHTTP socket mode: ${XHTTP_SOCKET_MODE:-0}"
+echo "Web frontend: ${WEB_FRONTEND:-caddy}"
 echo
 
 if [ "${XHTTP_SOCKET_MODE:-0}" = "1" ]; then
@@ -44,6 +46,8 @@ else
   echo "  panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
   echo "Enable it with:"
   echo "  $STACK_DIR/enable-xhttp-socket-caddy.sh"
+  echo "Experimental Angie frontend:"
+  echo "  $STACK_DIR/enable-xhttp-socket-angie.sh"
 fi
 
 echo
@@ -60,7 +64,7 @@ echo
 echo "Containers:"
 if command -v docker >/dev/null 2>&1; then
   docker ps --format '  {{.Names}}\t{{.Status}}\t{{.Ports}}' |
-    grep -E 'remnanode|remnawave-caddy|remnawave-fallback-element' ||
+    grep -E 'remnanode|remnawave-caddy|remnawave-angie|remnawave-fallback-element' ||
     echo "  no matching containers running"
 else
   echo "  docker command not found"
@@ -93,7 +97,8 @@ echo
 echo "Generated files:"
 for file in \
   "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.json" \
-  "$STACK_DIR/caddy/Caddyfile"; do
+  "$STACK_DIR/caddy/Caddyfile" \
+  "$STACK_DIR/angie/angie.conf"; do
   if [ -f "$file" ]; then
     echo "  $file"
   fi

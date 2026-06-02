@@ -90,7 +90,7 @@ if ! docker compose version >/dev/null 2>&1; then
 fi
 
 echo "[2/7] Preparing $STACK_DIR"
-mkdir -p "$STACK_DIR/caddy" "$STACK_DIR/selfsteal" "$STACK_DIR/certs" "$STACK_DIR/element-web" "$STACK_DIR/generated-profiles"
+mkdir -p "$STACK_DIR/caddy" "$STACK_DIR/angie" "$STACK_DIR/selfsteal" "$STACK_DIR/certs" "$STACK_DIR/element-web" "$STACK_DIR/generated-profiles"
 
 cp "$PROJECT_DIR/docker/docker-compose.yml" "$STACK_DIR/docker-compose.yml"
 cp "$PROJECT_DIR/selfsteal/index.html" "$STACK_DIR/selfsteal/index.html"
@@ -98,15 +98,17 @@ cp "$PROJECT_DIR/element-web/config.json" "$STACK_DIR/element-web/config.json"
 cp "$PROJECT_DIR/caddy/Caddyfile.template" "$STACK_DIR/caddy/Caddyfile.acme.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.fallback.template" "$STACK_DIR/caddy/Caddyfile.fallback.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.xhttp-socket.template" "$STACK_DIR/caddy/Caddyfile.xhttp-socket.template"
+cp "$PROJECT_DIR/angie/angie.xhttp-socket.conf.template" "$STACK_DIR/angie/angie.xhttp-socket.conf.template"
 cp "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-selfsteal.json" "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.json"
 cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-certs.sh"
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh"
+cp "$PROJECT_DIR/setup-scripts/enable-xhttp-socket-angie.sh" "$STACK_DIR/enable-xhttp-socket-angie.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-network-tuning.sh" "$STACK_DIR/enable-network-tuning.sh"
 cp "$PROJECT_DIR/setup-scripts/node-status.sh" "$STACK_DIR/node-status.sh"
 cp "$PROJECT_DIR/setup-scripts/uninstall-node.sh" "$STACK_DIR/uninstall-node.sh"
-chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-network-tuning.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
+chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-xhttp-socket-angie.sh" "$STACK_DIR/enable-network-tuning.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
 
 sed \
   -e "s/{{EMAIL}}/$EMAIL/g" \
@@ -121,6 +123,7 @@ XHTTP_PATH=$XHTTP_PATH
 EXTRA_PORTS=$EXTRA_PORTS
 VISION_FALLBACK=0
 XHTTP_SOCKET_MODE=0
+WEB_FRONTEND=caddy
 EOF
 
 touch "$STACK_DIR/certs/fullchain.pem" "$STACK_DIR/certs/privkey.key"

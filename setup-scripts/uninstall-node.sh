@@ -35,6 +35,7 @@ fi
 for container in \
   remnanode \
   remnawave-caddy \
+  remnawave-angie \
   remnawave-fallback-element \
   remnawave-tor-proxy \
   remnawave-warp-socks; do
@@ -49,6 +50,7 @@ if [ -d "$STACK_DIR" ]; then
   rm -f "$STACK_DIR/renew-caddy-certs-for-xray.sh"
   rm -f "$STACK_DIR/enable-vision-fallback-caddy.sh"
   rm -f "$STACK_DIR/enable-xhttp-socket-caddy.sh"
+  rm -f "$STACK_DIR/enable-xhttp-socket-angie.sh"
   rm -f "$STACK_DIR/enable-network-tuning.sh"
   rm -f "$STACK_DIR/enable-warp-socks.sh"
   rm -f "$STACK_DIR/node-status.sh"
@@ -56,6 +58,7 @@ if [ -d "$STACK_DIR" ]; then
   rm -rf "$STACK_DIR/routing-examples"
   rm -rf "$STACK_DIR/generated-profiles"
   rm -rf "$STACK_DIR/caddy"
+  rm -rf "$STACK_DIR/angie"
   rm -rf "$STACK_DIR/selfsteal"
   rm -rf "$STACK_DIR/element-web"
 
