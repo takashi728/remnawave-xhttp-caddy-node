@@ -13,6 +13,63 @@ fi
 
 . /etc/os-release
 
+red() {
+  printf '\033[1;31m%s\033[0m\n' "$*"
+}
+
+yellow() {
+  printf '\033[1;33m%s\033[0m\n' "$*"
+}
+
+green() {
+  printf '\033[1;32m%s\033[0m\n' "$*"
+}
+
+newest_installed_kernel() {
+  local newest
+
+  newest="$(
+    find /boot -maxdepth 1 -type f -name 'vmlinuz-*' -printf '%f\n' 2>/dev/null |
+      sed 's/^vmlinuz-//' |
+      sort -V |
+      tail -n 1
+  )"
+
+  printf '%s' "$newest"
+}
+
+stop_if_reboot_required() {
+  local current_kernel newest_kernel
+
+  current_kernel="$(uname -r)"
+  newest_kernel="$(newest_installed_kernel)"
+
+  echo "Current running kernel: $current_kernel"
+
+  if [ -z "$newest_kernel" ]; then
+    yellow "Could not detect installed kernel images under /boot."
+    yellow "Continuing without reboot gate."
+    return 0
+  fi
+
+  echo "Newest installed kernel: $newest_kernel"
+
+  if [ "$newest_kernel" != "$current_kernel" ]; then
+    echo
+    red "REBOOT REQUIRED BEFORE NODE DEPLOYMENT"
+    yellow "A newer kernel is installed, but this SSH session is still running the old kernel."
+    yellow "Please reboot the VPS, reconnect with SSH, then re-run the installer."
+    echo
+    yellow "After reboot, run again:"
+    echo "  curl -fsSL https://raw.githubusercontent.com/takashi728/remnawave-xhttp-caddy-node/new-install-script/setup-scripts/install.sh | sudo bash"
+    echo
+    yellow "The installer will continue to the email/domain/SECRET_KEY prompts after the new kernel is active."
+    exit 75
+  fi
+
+  green "Running kernel is already the newest installed kernel. Continuing."
+}
+
 install_debian_backports_kernel() {
   local codename="${VERSION_CODENAME:-}"
   local components="main contrib non-free"
@@ -86,6 +143,4 @@ case "${ID:-}" in
     ;;
 esac
 
-current_kernel="$(uname -r)"
-echo "Current running kernel: $current_kernel"
-echo "If a newer kernel was installed, reboot the VPS after the installer completes."
+stop_if_reboot_required
