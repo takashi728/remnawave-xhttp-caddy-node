@@ -6,6 +6,15 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+
+if [ "${SKIP_KERNEL_UPDATE:-0}" != "1" ]; then
+  "$PROJECT_DIR/setup-scripts/enable-latest-kernel-debian-ubuntu.sh"
+else
+  echo "Skipping latest kernel helper because SKIP_KERNEL_UPDATE=1."
+fi
+
 normalize_extra_ports() {
   printf '%s' "$1" | tr -d '[:space:]'
 }
@@ -64,8 +73,6 @@ EXTRA_PORTS="$(normalize_extra_ports "$EXTRA_PORTS")"
 validate_extra_ports "$EXTRA_PORTS"
 
 STACK_DIR="/opt/remnanode"
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
 echo "[1/7] Installing Docker prerequisites"
 apt-get update
@@ -103,10 +110,11 @@ cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-c
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh"
+cp "$PROJECT_DIR/setup-scripts/enable-latest-kernel-debian-ubuntu.sh" "$STACK_DIR/enable-latest-kernel-debian-ubuntu.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-network-tuning.sh" "$STACK_DIR/enable-network-tuning.sh"
 cp "$PROJECT_DIR/setup-scripts/node-status.sh" "$STACK_DIR/node-status.sh"
 cp "$PROJECT_DIR/setup-scripts/uninstall-node.sh" "$STACK_DIR/uninstall-node.sh"
-chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-network-tuning.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
+chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-latest-kernel-debian-ubuntu.sh" "$STACK_DIR/enable-network-tuning.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
 
 sed \
   -e "s/{{EMAIL}}/$EMAIL/g" \
