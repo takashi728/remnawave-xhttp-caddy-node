@@ -27,12 +27,9 @@ install_fetch_deps() {
     arch|artix|endeavouros|manjaro)
       pacman -Sy --needed --noconfirm ca-certificates curl tar gzip
       ;;
-    rocky|almalinux)
-      dnf install -y ca-certificates curl tar gzip
-      ;;
     *)
       echo "Unsupported distro for bootstrap installer: ${ID:-unknown}" >&2
-      echo "Supported: Ubuntu, Debian, Arch-based, Rocky Linux, AlmaLinux." >&2
+      echo "Supported: Ubuntu, Debian, Arch-based Linux." >&2
       exit 1
       ;;
   esac
@@ -45,17 +42,6 @@ select_installer() {
       ;;
     arch|artix|endeavouros|manjaro)
       printf '%s\n' "setup-scripts/install-node-caddy-arch.sh"
-      ;;
-    rocky|almalinux)
-      case "${VERSION_ID%%.*}" in
-        9|10)
-          printf '%s\n' "setup-scripts/install-node-caddy-rhel.sh"
-          ;;
-        *)
-          echo "Rocky/Alma bootstrap supports version 9 or 10. Detected: ${VERSION_ID:-unknown}" >&2
-          exit 1
-          ;;
-      esac
       ;;
     *)
       echo "Unsupported distro for bootstrap installer: ${ID:-unknown}" >&2
@@ -80,9 +66,6 @@ update_system_no_reboot() {
       ;;
     arch|artix|endeavouros|manjaro)
       pacman -Syu --noconfirm
-      ;;
-    rocky|almalinux)
-      dnf upgrade -y
       ;;
     *)
       echo "Unsupported distro for bootstrap installer: ${ID:-unknown}" >&2
