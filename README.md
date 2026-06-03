@@ -1,10 +1,10 @@
 # Remnawave Node Deployment Bundle
 
-Small deployment bundle for Remnawave nodes on Ubuntu/Debian, Arch Linux, Rocky Linux, and AlmaLinux VPS images.
+Small deployment bundle for Remnawave nodes on Ubuntu/Debian and Arch Linux VPS images.
 
 ## Requirements
 
-- Ubuntu 22.04+, Debian 11+, Arch Linux, Rocky Linux 9/10, or AlmaLinux 9/10
+- Ubuntu 22.04+, Debian 11+, or Arch Linux
 - Root or sudo access
 - A domain record already pointing to the VPS
 - Remnawave node secret key
@@ -21,12 +21,6 @@ On Arch Linux:
 
 ```bash
 sudo bash setup-scripts/install-node-caddy-arch.sh
-```
-
-On Rocky Linux or AlmaLinux:
-
-```bash
-sudo bash setup-scripts/install-node-caddy-rhel.sh
 ```
 
 The installer asks for:
