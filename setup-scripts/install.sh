@@ -101,6 +101,12 @@ if [ ! -f "$PROJECT_DIR/$INSTALLER" ]; then
   exit 1
 fi
 
+if [ ! -r /dev/tty ]; then
+  echo "Interactive terminal not available." >&2
+  echo "Download the installer first, then run it with sudo bash from an interactive shell." >&2
+  exit 1
+fi
+
 chmod +x "$PROJECT_DIR/$INSTALLER"
 echo "Running: $INSTALLER"
-exec bash "$PROJECT_DIR/$INSTALLER"
+exec bash "$PROJECT_DIR/$INSTALLER" </dev/tty
