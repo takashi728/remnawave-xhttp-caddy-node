@@ -43,7 +43,7 @@ sed \
   "$TEMPLATE" > "$STACK_DIR/caddy/Caddyfile"
 
 cd "$STACK_DIR"
-docker compose up -d fallback-web
+docker compose up -d --remove-orphans cover-web
 docker compose up -d --force-recreate caddy
 
 if grep -q '^VISION_FALLBACK=' "$STACK_DIR/.env"; then
@@ -53,4 +53,4 @@ else
 fi
 
 echo "Caddy fallback enabled on 127.0.0.1:9443."
-echo "Use panel profile: panel-profiles/vless-xtls-vision-tls-selfsteal-fallback.json"
+echo "Use legacy panel profile: panel-profiles/legacy/vless-xtls-vision-tls-selfsteal-fallback.json"

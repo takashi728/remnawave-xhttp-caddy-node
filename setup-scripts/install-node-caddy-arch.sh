@@ -106,15 +106,15 @@ cp "$PROJECT_DIR/element-web/config.json" "$STACK_DIR/element-web/config.json"
 cp "$PROJECT_DIR/caddy/Caddyfile.template" "$STACK_DIR/caddy/Caddyfile.acme.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.fallback.template" "$STACK_DIR/caddy/Caddyfile.fallback.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.xhttp-socket.template" "$STACK_DIR/caddy/Caddyfile.xhttp-socket.template"
-cp "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-selfsteal.json" "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.json"
+cp "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-obfs.json" "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-obfs.json"
+cp "$PROJECT_DIR/host-overrides/xhttp-obfs-xmux.json" "$STACK_DIR/generated-profiles/xhttp-obfs-xmux-host-override.json"
 cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-certs.sh"
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
-cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-network-tuning.sh" "$STACK_DIR/enable-network-tuning.sh"
 cp "$PROJECT_DIR/setup-scripts/node-status.sh" "$STACK_DIR/node-status.sh"
 cp "$PROJECT_DIR/setup-scripts/uninstall-node.sh" "$STACK_DIR/uninstall-node.sh"
-chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-network-tuning.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
+chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-network-tuning.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
 
 sed \
   -e "s/{{EMAIL}}/$EMAIL/g" \
@@ -123,6 +123,7 @@ sed \
 
 cat > "$STACK_DIR/.env" <<EOF
 SECRET_KEY=$SECRET_KEY
+CUSTOM_CORE_URL=
 DOMAIN=$DOMAIN
 EMAIL=$EMAIL
 XHTTP_PATH=$XHTTP_PATH
@@ -192,8 +193,10 @@ if [ -n "$EXTRA_PORTS" ]; then
   echo "Additional inbound TCP ports allowed/requested: $EXTRA_PORTS"
 fi
 echo "XHTTP path for panel/client: $XHTTP_PATH"
-echo "Recommended XHTTP profile: panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
+echo "Recommended Node profile: panel-profiles/vless-xhttp-caddy-socket-obfs.json"
+echo "Host override: host-overrides/xhttp-obfs-xmux.json"
 echo "For XHTTP socket mode, set Remnawave Host Security Layer to TLS and Host Path to: $XHTTP_PATH"
+echo "Leave general Host MUX unset. Supported client core: Xray v26.6.27 or newer."
 echo "Status check: sudo $STACK_DIR/node-status.sh"
 echo "Optional network tuning: sudo $STACK_DIR/enable-network-tuning.sh"
 echo "Uninstall: sudo $STACK_DIR/uninstall-node.sh"

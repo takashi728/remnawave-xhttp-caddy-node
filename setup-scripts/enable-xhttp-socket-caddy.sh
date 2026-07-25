@@ -30,7 +30,7 @@ sed \
   "$TEMPLATE" > "$STACK_DIR/caddy/Caddyfile"
 
 cd "$STACK_DIR"
-docker compose up -d fallback-web
+docker compose up -d --remove-orphans cover-web
 docker compose up -d --force-recreate caddy
 
 if grep -q '^XHTTP_SOCKET_MODE=' "$STACK_DIR/.env"; then
@@ -40,5 +40,7 @@ else
 fi
 
 echo "XHTTP socket web mode enabled."
-echo "Use panel profile: panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
+echo "Use Node profile: panel-profiles/vless-xhttp-caddy-socket-obfs.json"
+echo "Use Host override: host-overrides/xhttp-obfs-xmux.json"
 echo "In Remnawave Host settings, set Security Layer to TLS and Path to: $XHTTP_PATH"
+echo "Leave general Host MUX unset. Supported client core: Xray v26.6.27 or newer."

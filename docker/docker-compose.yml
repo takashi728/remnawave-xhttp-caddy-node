@@ -1,6 +1,6 @@
 services:
   caddy:
-    image: caddy:2.11.3
+    image: caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9
     container_name: remnawave-caddy
     restart: unless-stopped
     network_mode: host
@@ -12,9 +12,9 @@ services:
       - ./caddy_config:/config
       - /dev/shm:/dev/shm
 
-  fallback-web:
-    image: vectorim/element-web:v1.12.18
-    container_name: remnawave-fallback-element
+  cover-web:
+    image: vectorim/element-web:v1.12.18@sha256:c21772a1eabeededa19be591343f548995e458ec34ba8f27425ae923c10af82e
+    container_name: remnawave-cover-element
     restart: unless-stopped
     ports:
       - "127.0.0.1:8088:80"
@@ -22,7 +22,7 @@ services:
       - ./element-web/config.json:/app/config.json:ro
 
   remnanode:
-    image: remnawave/node:latest
+    image: remnawave/node:2.8.0@sha256:03f14935751b4ab565181e2b1766ccd1a9ac349d6839acd3ee49014e543fa232
     container_name: remnanode
     hostname: remnanode
     restart: unless-stopped
@@ -32,6 +32,7 @@ services:
     environment:
       NODE_PORT: "2222"
       SECRET_KEY: "${SECRET_KEY}"
+      CUSTOM_CORE_URL: "${CUSTOM_CORE_URL:-}"
     volumes:
       - ./certs/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro
       - ./certs/privkey.key:/etc/nginx/certs/privkey.key:ro

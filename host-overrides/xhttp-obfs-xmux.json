@@ -1,0 +1,20 @@
+{
+  "mode": "packet-up",
+  "xPaddingObfsMode": true,
+  "xPaddingBytes": "16-96",
+  "xPaddingMethod": "tokenish",
+  "xPaddingPlacement": "queryInHeader",
+  "xPaddingHeader": "Referer",
+  "xPaddingKey": "v",
+  "uplinkHTTPMethod": "POST",
+  "uplinkDataPlacement": "body",
+  "scMaxEachPostBytes": 2000000,
+  "scMinPostsIntervalMs": 10,
+  "xmux": {
+    "maxConnections": "6",
+    "cMaxReuseTimes": 0,
+    "hMaxRequestTimes": "600-900",
+    "hMaxReusableSecs": "1800-3000",
+    "hKeepAlivePeriod": 0
+  }
+}

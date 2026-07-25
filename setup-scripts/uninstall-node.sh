@@ -35,6 +35,7 @@ fi
 for container in \
   remnanode \
   remnawave-caddy \
+  remnawave-cover-element \
   remnawave-fallback-element \
   remnawave-tor-proxy \
   remnawave-warp-socks; do
