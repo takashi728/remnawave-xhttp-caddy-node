@@ -16,6 +16,7 @@ fi
 install_debian_backports_kernel() {
   local codename="${VERSION_CODENAME:-}"
   local components="main contrib non-free"
+  local arch
   local source_file
 
   if [ -z "$codename" ]; then
@@ -23,6 +24,7 @@ install_debian_backports_kernel() {
     return 0
   fi
 
+  arch="$(dpkg --print-architecture)"
   source_file="/etc/apt/sources.list.d/${codename}-backports.list"
 
   case "$codename" in
@@ -39,12 +41,12 @@ install_debian_backports_kernel() {
   export DEBIAN_FRONTEND=noninteractive
   apt-get update
 
-  if apt-cache policy linux-image-amd64 | grep -q "${codename}-backports"; then
-    echo "Installing latest Debian backports kernel package."
-    apt-get install -y -t "${codename}-backports" linux-image-amd64 linux-headers-amd64
+  if apt-cache policy "linux-image-${arch}" | grep -q "${codename}-backports"; then
+    echo "Installing latest Debian backports kernel package (${arch})."
+    apt-get install -y -t "${codename}-backports" "linux-image-${arch}" "linux-headers-${arch}"
   else
-    echo "Backports kernel is not available for ${codename}; installing distro kernel package."
-    apt-get install -y linux-image-amd64 linux-headers-amd64
+    echo "Backports kernel is not available for ${codename}; installing distro kernel package (${arch})."
+    apt-get install -y "linux-image-${arch}" "linux-headers-${arch}"
   fi
 }
 
@@ -88,4 +90,4 @@ esac
 
 current_kernel="$(uname -r)"
 echo "Current running kernel: $current_kernel"
-echo "If a newer kernel was installed, reboot the VPS after the installer completes."
+echo "IMPORTANT: Reboot the VPS after installation completes so the new kernel and security patches (such as CVE-2026-98432) take effect."

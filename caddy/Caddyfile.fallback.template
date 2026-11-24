@@ -11,7 +11,7 @@ http://127.0.0.1:9443 {
 		Content-Security-Policy "frame-ancestors 'none'"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		X-Content-Type-Options "nosniff"
-		X-Frame-Options "SAMEORIGIN"
+		X-Frame-Options "DENY"
 	}
 
 	reverse_proxy 127.0.0.1:8088

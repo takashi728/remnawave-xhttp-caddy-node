@@ -1,9 +1,11 @@
 services:
   caddy:
-    image: caddy:2.11.3
+    image: caddy:2.11.9
     container_name: remnawave-caddy
     restart: unless-stopped
     network_mode: host
+    environment:
+      GODEBUG: "multipathtcp=0"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./selfsteal:/srv/selfsteal:ro
@@ -13,7 +15,7 @@ services:
       - /dev/shm:/dev/shm
 
   fallback-web:
-    image: vectorim/element-web:v1.12.18
+    image: vectorim/element-web:v1.12.36
     container_name: remnawave-fallback-element
     restart: unless-stopped
     ports:
@@ -22,7 +24,7 @@ services:
       - ./element-web/config.json:/app/config.json:ro
 
   remnanode:
-    image: remnawave/node:latest
+    image: remnawave/node:3.4.6
     container_name: remnanode
     hostname: remnanode
     restart: unless-stopped
@@ -30,8 +32,12 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-      NODE_PORT: "2222"
+      NODE_PORT: "${NODE_PORT:-2222}"
       SECRET_KEY: "${SECRET_KEY}"
+      SNI_VERIFICATION: "${SNI_VERIFICATION:-false}"
+      NFTABLES_TABLE_NAME: "${NFTABLES_TABLE_NAME:-remnanode}"
+      SUPPRESS_DUPLICATE_INSTANCE_WARNING: "${SUPPRESS_DUPLICATE_INSTANCE_WARNING:-false}"
+      CUSTOM_CORE_URL: "${CUSTOM_CORE_URL:-}"
     volumes:
       - ./certs/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro
       - ./certs/privkey.key:/etc/nginx/certs/privkey.key:ro

@@ -37,20 +37,53 @@ if [ ! -f "$TEMPLATE" ]; then
   exit 1
 fi
 
+escape_sed_replacement() {
+  printf '%s' "$1" | sed -e 's/[\\&|]/\\&/g'
+}
+
+set_env_var() {
+  local env_file="$1"
+  local key="$2"
+  local value="$3"
+  local tmp_file
+
+  tmp_file="$(mktemp "${env_file}.XXXXXX")"
+  chmod 0600 "$tmp_file"
+  SET_ENV_KEY="$key" SET_ENV_VAL="$value" awk '
+    BEGIN { k = ENVIRON["SET_ENV_KEY"]; v = ENVIRON["SET_ENV_VAL"]; found = 0 }
+    index($0, k "=") == 1 {
+      if (!found) {
+        print k "=" v
+        found = 1
+      }
+      next
+    }
+    { print }
+    END {
+      if (!found) {
+        print k "=" v
+      }
+    }
+  ' "$env_file" > "$tmp_file"
+  chmod 0600 "$tmp_file"
+  mv "$tmp_file" "$env_file"
+  chmod 0600 "$env_file"
+}
+
+ESCAPED_EMAIL="$(escape_sed_replacement "$EMAIL")"
+ESCAPED_DOMAIN="$(escape_sed_replacement "$DOMAIN")"
+
 sed \
-  -e "s/{{EMAIL}}/$EMAIL/g" \
-  -e "s/{{DOMAIN}}/$DOMAIN/g" \
+  -e "s|{{EMAIL}}|$ESCAPED_EMAIL|g" \
+  -e "s|{{DOMAIN}}|$ESCAPED_DOMAIN|g" \
   "$TEMPLATE" > "$STACK_DIR/caddy/Caddyfile"
 
 cd "$STACK_DIR"
 docker compose up -d fallback-web
 docker compose up -d --force-recreate caddy
 
-if grep -q '^VISION_FALLBACK=' "$STACK_DIR/.env"; then
-  sed -i 's/^VISION_FALLBACK=.*/VISION_FALLBACK=1/' "$STACK_DIR/.env"
-else
-  printf '\nVISION_FALLBACK=1\n' >> "$STACK_DIR/.env"
-fi
+set_env_var "$STACK_DIR/.env" "VISION_FALLBACK" "1"
+set_env_var "$STACK_DIR/.env" "XHTTP_SOCKET_MODE" "0"
 
 echo "Caddy fallback enabled on 127.0.0.1:9443."
 echo "Use panel profile: panel-profiles/vless-xtls-vision-tls-selfsteal-fallback.json"

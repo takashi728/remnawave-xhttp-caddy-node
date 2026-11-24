@@ -18,6 +18,23 @@ if [ -z "$DOMAIN" ] || [ -z "$EMAIL" ]; then
   exit 1
 fi
 
+escape_sed_replacement() {
+  printf '%s' "$1" | sed -e 's/[\\&|]/\\&/g'
+}
+
+if [ "${XHTTP_SOCKET_MODE:-0}" = "1" ] && [ "${VISION_FALLBACK:-0}" = "1" ]; then
+  echo "Warning: both XHTTP_SOCKET_MODE=1 and VISION_FALLBACK=1 are set in $STACK_DIR/.env; preferring XHTTP_SOCKET_MODE." >&2
+  VISION_FALLBACK=0
+fi
+
+restore_active_mode() {
+  if [ "${XHTTP_SOCKET_MODE:-0}" = "1" ]; then
+    "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR"
+  elif [ "${VISION_FALLBACK:-0}" = "1" ]; then
+    "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR"
+  fi
+}
+
 cd "$STACK_DIR"
 
 if [ ! -f "$STACK_DIR/caddy/Caddyfile.acme.template" ]; then
@@ -25,9 +42,12 @@ if [ ! -f "$STACK_DIR/caddy/Caddyfile.acme.template" ]; then
   exit 1
 fi
 
+ESCAPED_EMAIL="$(escape_sed_replacement "$EMAIL")"
+ESCAPED_DOMAIN="$(escape_sed_replacement "$DOMAIN")"
+
 sed \
-  -e "s/{{EMAIL}}/$EMAIL/g" \
-  -e "s/{{DOMAIN}}/$DOMAIN/g" \
+  -e "s|{{EMAIL}}|$ESCAPED_EMAIL|g" \
+  -e "s|{{DOMAIN}}|$ESCAPED_DOMAIN|g" \
   "$STACK_DIR/caddy/Caddyfile.acme.template" > "$STACK_DIR/caddy/Caddyfile"
 
 docker compose stop remnanode >/dev/null 2>&1 || true
@@ -38,12 +58,7 @@ for _ in $(seq 1 36); do
   if CERT_EXPORT_QUIET=1 "$STACK_DIR/export-caddy-certs.sh" "$DOMAIN" "$STACK_DIR"; then
     docker compose stop caddy >/dev/null
     docker compose up -d remnanode
-    if [ "$XHTTP_SOCKET_MODE" = "1" ]; then
-      "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR"
-    fi
-    if [ "$VISION_FALLBACK" = "1" ]; then
-      "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR"
-    fi
+    restore_active_mode
     echo "Certificate export complete and remnanode restarted."
     exit 0
   fi
@@ -53,12 +68,7 @@ done
 docker compose logs --tail=80 caddy >&2 || true
 docker compose stop caddy >/dev/null 2>&1 || true
 docker compose up -d remnanode
-if [ "$XHTTP_SOCKET_MODE" = "1" ]; then
-  "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR" || true
-fi
-if [ "$VISION_FALLBACK" = "1" ]; then
-  "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR" || true
-fi
+restore_active_mode || true
 
 echo "Certificate export failed; remnanode was restarted." >&2
 exit 1

@@ -66,7 +66,13 @@ if [ -d "$STACK_DIR" ]; then
     rm -rf "$STACK_DIR/caddy_config"
     rm -rf "$STACK_DIR/fallback-web-data"
     rm -f "$STACK_DIR/.env"
+    rm -f "$STACK_DIR/uninstall-node.sh"
+    cd /
     rmdir "$STACK_DIR" >/dev/null 2>&1 || true
+    if [ -f /etc/sysctl.d/99-remnawave-network-tuning.conf ]; then
+      rm -f /etc/sysctl.d/99-remnawave-network-tuning.conf
+      echo "Removed /etc/sysctl.d/99-remnawave-network-tuning.conf; run 'sysctl --system' or reboot to restore default sysctl settings."
+    fi
   fi
 fi
 

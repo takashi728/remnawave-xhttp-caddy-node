@@ -60,16 +60,60 @@ allow_ufw_ports() {
   done
 }
 
+validate_email() {
+  local email="$1"
+  if [ -z "$email" ] || [[ "$email" =~ [[:space:][:cntrl:]] ]] || [[ "$email" != *@* ]]; then
+    echo "Invalid email address: must contain '@' and no whitespace or control characters." >&2
+    return 1
+  fi
+  local local_part="${email%%@*}"
+  local host_part="${email#*@}"
+  if [ -z "$local_part" ] || [ -z "$host_part" ] || [[ "$host_part" == *@* ]]; then
+    echo "Invalid email address: $email" >&2
+    return 1
+  fi
+}
+
+validate_domain() {
+  local domain="$1"
+  if ! [[ "$domain" =~ ^[A-Za-z0-9.-]+$ ]] || [[ "$domain" != *.* ]] || [[ "$domain" == .* ]] || [[ "$domain" == *. ]] || [[ "$domain" == -* ]] || [[ "$domain" == *- ]] || [[ "$domain" == *..* ]]; then
+    echo "Invalid domain: $domain" >&2
+    return 1
+  fi
+}
+
+validate_secret_key() {
+  local key="$1"
+  if [ -z "$key" ] || [ "$key" = "replace-with-remnawave-node-secret-key" ] || [[ "$key" =~ [[:space:][:cntrl:]] ]]; then
+    echo "Invalid SECRET_KEY: must be non-empty, not the placeholder value, and contain no whitespace or control characters." >&2
+    return 1
+  fi
+}
+
+escape_sed_replacement() {
+  printf '%s' "$1" | sed -e 's/[\\&|]/\\&/g'
+}
+
 read -r -p "Email for Let's Encrypt: " EMAIL
+validate_email "$EMAIL"
+
 read -r -p "Node domain, for example node.example.com: " DOMAIN
+validate_domain "$DOMAIN"
+
 read -r -p "Additional inbound TCP ports or ranges, comma-separated [none]: " EXTRA_PORTS
 read -r -s -p "Remnawave SECRET_KEY: " SECRET_KEY
 echo
+validate_secret_key "$SECRET_KEY"
 
-if [ -z "$EMAIL" ] || [ -z "$DOMAIN" ] || [ -z "$SECRET_KEY" ]; then
-  echo "Email, domain, and SECRET_KEY are required." >&2
-  exit 1
-fi
+read -r -p "Enable Remnawave Node API SNI verification (requires Panel support)? [y/N]: " ENABLE_SNI_VERIFICATION
+case "${ENABLE_SNI_VERIFICATION:-}" in
+  y|Y|yes|YES)
+    SNI_VERIFICATION="true"
+    ;;
+  *)
+    SNI_VERIFICATION="false"
+    ;;
+esac
 
 EXTRA_PORTS="$(normalize_extra_ports "$EXTRA_PORTS")"
 validate_extra_ports "$EXTRA_PORTS"
@@ -107,6 +151,12 @@ cp "$PROJECT_DIR/caddy/Caddyfile.template" "$STACK_DIR/caddy/Caddyfile.acme.temp
 cp "$PROJECT_DIR/caddy/Caddyfile.fallback.template" "$STACK_DIR/caddy/Caddyfile.fallback.template"
 cp "$PROJECT_DIR/caddy/Caddyfile.xhttp-socket.template" "$STACK_DIR/caddy/Caddyfile.xhttp-socket.template"
 cp "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-selfsteal.json" "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-selfsteal.json"
+if [ -f "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-obfs.json" ]; then
+  cp "$PROJECT_DIR/panel-profiles/vless-xhttp-caddy-socket-obfs.json" "$STACK_DIR/generated-profiles/vless-xhttp-caddy-socket-obfs.json"
+fi
+if [ -f "$PROJECT_DIR/host-overrides/xhttp-obfs-xmux.json" ]; then
+  cp "$PROJECT_DIR/host-overrides/xhttp-obfs-xmux.json" "$STACK_DIR/generated-profiles/xhttp-obfs-xmux.json"
+fi
 cp "$PROJECT_DIR/setup-scripts/export-caddy-certs.sh" "$STACK_DIR/export-caddy-certs.sh"
 cp "$PROJECT_DIR/setup-scripts/renew-caddy-certs-for-xray.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh"
 cp "$PROJECT_DIR/setup-scripts/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh"
@@ -116,13 +166,25 @@ cp "$PROJECT_DIR/setup-scripts/node-status.sh" "$STACK_DIR/node-status.sh"
 cp "$PROJECT_DIR/setup-scripts/uninstall-node.sh" "$STACK_DIR/uninstall-node.sh"
 chmod +x "$STACK_DIR/export-caddy-certs.sh" "$STACK_DIR/renew-caddy-certs-for-xray.sh" "$STACK_DIR/enable-vision-fallback-caddy.sh" "$STACK_DIR/enable-xhttp-socket-caddy.sh" "$STACK_DIR/enable-network-tuning.sh" "$STACK_DIR/node-status.sh" "$STACK_DIR/uninstall-node.sh"
 
+ESCAPED_EMAIL="$(escape_sed_replacement "$EMAIL")"
+ESCAPED_DOMAIN="$(escape_sed_replacement "$DOMAIN")"
+
 sed \
-  -e "s/{{EMAIL}}/$EMAIL/g" \
-  -e "s/{{DOMAIN}}/$DOMAIN/g" \
+  -e "s|{{EMAIL}}|$ESCAPED_EMAIL|g" \
+  -e "s|{{DOMAIN}}|$ESCAPED_DOMAIN|g" \
   "$PROJECT_DIR/caddy/Caddyfile.template" > "$STACK_DIR/caddy/Caddyfile"
 
-cat > "$STACK_DIR/.env" <<EOF
+(
+  umask 077
+  touch "$STACK_DIR/.env"
+  chmod 0600 "$STACK_DIR/.env"
+  cat > "$STACK_DIR/.env" <<EOF
+NODE_PORT=2222
 SECRET_KEY=$SECRET_KEY
+SNI_VERIFICATION=$SNI_VERIFICATION
+NFTABLES_TABLE_NAME=remnanode
+SUPPRESS_DUPLICATE_INSTANCE_WARNING=false
+CUSTOM_CORE_URL=
 DOMAIN=$DOMAIN
 EMAIL=$EMAIL
 XHTTP_PATH=$XHTTP_PATH
@@ -130,6 +192,8 @@ EXTRA_PORTS=$EXTRA_PORTS
 VISION_FALLBACK=0
 XHTTP_SOCKET_MODE=0
 EOF
+)
+chmod 0600 "$STACK_DIR/.env"
 
 touch "$STACK_DIR/certs/fullchain.pem" "$STACK_DIR/certs/privkey.key"
 chmod 0600 "$STACK_DIR/certs/privkey.key"
@@ -187,12 +251,13 @@ echo
 echo "Done."
 echo "Domain: $DOMAIN"
 echo "Caddy: ACME bootstrap/renewal only; stopped during normal Xray service"
-echo "Remnawave node: 2222"
+echo "Remnawave node: 2222 (SNI_VERIFICATION=$SNI_VERIFICATION)"
 if [ -n "$EXTRA_PORTS" ]; then
   echo "Additional inbound TCP ports allowed/requested: $EXTRA_PORTS"
 fi
 echo "XHTTP path for panel/client: $XHTTP_PATH"
 echo "Recommended XHTTP profile: panel-profiles/vless-xhttp-caddy-socket-selfsteal.json"
+echo "Obfuscated XHTTP profile: panel-profiles/vless-xhttp-caddy-socket-obfs.json (host override: host-overrides/xhttp-obfs-xmux.json)"
 echo "For XHTTP socket mode, set Remnawave Host Security Layer to TLS and Host Path to: $XHTTP_PATH"
 echo "Status check: sudo $STACK_DIR/node-status.sh"
 echo "Optional network tuning: sudo $STACK_DIR/enable-network-tuning.sh"
